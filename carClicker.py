@@ -50,6 +50,17 @@ def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must
     delay.close()
 
 
+def write_error(file_name , write__):    # in the beginning it's '0'
+    error__ = open(file_name , 'w')
+    error__.write( str(write__) )
+    error__.flush()
+    error__.close()
+
+
+def read_error(file_name):   
+    error__ = open(file_name , 'r')
+    return int(error__.read() )
+
 def replace_line(file_name , line_num , text):
     lines = open(file_name, 'r').readlines()
     lines[line_num] = str(text[line_num]) + "\n"
@@ -253,8 +264,11 @@ try:
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
                 file.flush() 
-                 
-            
+
+            if( read_error("run_after_error.txt") == 1 ):
+                write_error("run_after_error.txt" , 0)
+                print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+           
             time.sleep( read_delay("delay.txt") )              # wait for X minutes
 
         elif(activate_send and current_time > off_time):
@@ -273,7 +287,6 @@ try:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_send("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
-
                 print("Email just sent... Purpose: Success")
             
             # reset all files for the new day    
@@ -296,6 +309,7 @@ try:
             writeNumOfErrors("let_5_errors_happen.txt" , 0)
             writeBoolErrors(0)
             write_delay("delay.txt" , 5)
+            write_error("run_after_error.txt" , 0)
 
 
 except: # if anything is wrong
@@ -313,5 +327,6 @@ except: # if anything is wrong
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_send("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
             print("Email just sent... Purpose: Error")
+            write_error("run_after_error.txt" , 1)
         driver.quit()   # quit firefox
         os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
