@@ -101,8 +101,8 @@ def readTotalUpdates():
 
 
 def email_send(SUBJECT , message):
-    FROM = "EMAIL-FROM"
-    TO = "EMAIL-TO"
+    FROM = "email-from"
+    TO = "email-to"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -111,7 +111,7 @@ def email_send(SUBJECT , message):
     HTML_BODY = MIMEText(message, 'html')
     MESSAGE.attach(HTML_BODY)
     server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "PASSCODE->EMAIL-FROM"
+    password = "passcode of (email-from)"
     server.starttls()
     server.login(FROM,password)
     server.sendmail(FROM , TO , MESSAGE.as_string() )
@@ -138,8 +138,8 @@ try:
     
     driver.get("https://www.car.gr/login/")
     
-    username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys("USERNAME")    # give username
-    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("PASSCODE")     # give password
+    username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys("username")    # give username
+    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("passcode")     # give password
     time.sleep(1)
 
     log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
@@ -222,8 +222,8 @@ try:
                 currentPosUpdate = int(file.read())  # read the number from file
                 machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
             
-            updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
-            updateMachine.click()       # press the "update" button
+            #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+            #updateMachine.click()       # press the "update" button
 
 
             machinesEachUpdate[currentPosUpdate] += 1
@@ -240,8 +240,8 @@ try:
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                     email_send("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
-                    print("Email sent... information")
-                    print("Running...")
+                    print("Email sent... Done")
+                    print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                         
             currentPosUpdate += 1       # increase current position of machine update
             file = open("updateNumber.txt", "w")    # open the file
@@ -274,7 +274,7 @@ try:
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_send("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
 
-                print("Email just sent...for success")
+                print("Email just sent... Purpose: Success")
             
             # reset all files for the new day    
             file = open("updateNumber.txt", "w")    # open the file
@@ -297,17 +297,21 @@ try:
             writeBoolErrors(0)
             write_delay("delay.txt" , 5)
 
+
 except: # if anything is wrong
-    with open("error_in_the_beginning.txt") as fileError:
-        if( int( fileError.read() ) == 0):
-            if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
-                writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
+        if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
+            with open("error_in_the_beginning.txt") as fileError:
+                if( int( fileError.read() ) == 0):
+                    writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
+                    changeDelayOnceWrite("change_delay_once.txt" , 1)
+                    writeBoolErrors(0)
+                    write_delay("delay.txt" , 5)
         else:
             print("AN ERROR OCCURED. Trying again. Loading...")
             with open("updateNumber.txt") as file:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_send("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-            print("Email just sent...for error")
-    driver.quit()   # quit firefox
-    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+            print("Email just sent... Purpose: Error")
+        driver.quit()   # quit firefox
+        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
