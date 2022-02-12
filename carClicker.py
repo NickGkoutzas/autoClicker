@@ -15,8 +15,8 @@ numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 
-on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
-off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
+on_time = datetime.datetime.strptime('00:00:00' , '%H:%M:%S').time()    # start updates at this time
+off_time = datetime.datetime.strptime('01:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
 
 
@@ -111,9 +111,9 @@ def readTotalUpdates():
     return int( read_update.read() )
 
 
-def email_send(SUBJECT , message):
-    FROM = "email-from"
-    TO = "email-to"
+def email_sendToMixalis(SUBJECT , message):
+    FROM = "emailFrom"
+    TO = "emailTo"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -122,12 +122,32 @@ def email_send(SUBJECT , message):
     HTML_BODY = MIMEText(message, 'html')
     MESSAGE.attach(HTML_BODY)
     server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcode of (email-from)"
+    password = "passcodeFrom"
     server.starttls()
     server.login(FROM,password)
     server.sendmail(FROM , TO , MESSAGE.as_string() )
     server.quit()
     return TO
+
+
+def email_sendToMe(SUBJECT , message):
+    FROM = "emailFrom"
+    TO = "emailTo"
+
+    MESSAGE = MIMEMultipart('alternative')
+    MESSAGE['subject'] = SUBJECT
+    MESSAGE['To'] = TO
+    MESSAGE['From'] = FROM
+    HTML_BODY = MIMEText(message, 'html')
+    MESSAGE.attach(HTML_BODY)
+    server = smtplib.SMTP("smtp.gmail.com:587")    
+    password = "passcodeFrom"
+    server.starttls()
+    server.login(FROM,password)
+    server.sendmail(FROM , TO , MESSAGE.as_string() )
+    server.quit()
+    return TO
+
 
 # Go to this link
 # https://www.youtube.com/redirect?v=YPiHBtddefI&redir_token=QUFFLUhqa3phOTlrSjk3RWpRNThXSHJBUDNobzRpNXlFZ3xBQ3Jtc0ttbzhFSXhmai1Mb19ORG9NYzVGa2lwcVNyWG9TYnkxWDZPd1RiQ2JPX05LTlRPQVpTeVMwN0tQWFN6SlZwWThCZFBWcmhFQTZfSlkwVzZ5NXVYaWNVRjVzYTdpT015bXY5UnVqTWFXcmpvQURIVHRBNA%3D%3D&event=video_description&q=https%3A%2F%2Fmyaccount.google.com%2Flesssecureapps%3Fpli%3D1
@@ -250,7 +270,8 @@ try:
                     if( int(fileTotal_R.read()) == 1 ):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        email_send("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
+                        email_sendToMixalis("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
+                        email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         print("Email sent... Done")
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                             
@@ -266,9 +287,11 @@ try:
                 file.flush() 
 
             if( read_error("run_after_error.txt") == 1 ):
+                email_sendToMixalis("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + ":" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToMe("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + ":" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 write_error("run_after_error.txt" , 0)
                 print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-           
+                
             time.sleep( read_delay("delay.txt") )              # wait for X minutes
 
         elif(activate_send and current_time > off_time):
@@ -286,7 +309,8 @@ try:
                     line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_send("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
+                email_sendToMixalis("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
+                email_sendToMe("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
                 print("Email just sent... Purpose: Success")
             
             # reset all files for the new day    
@@ -313,9 +337,9 @@ try:
 
 
 except: # if anything is wrong
-        if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
-            with open("error_in_the_beginning.txt") as fileError:
-                if( int( fileError.read() ) == 0):
+        if( int( open("error_in_the_beginning.txt").read() ) == 0):
+            if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
+                with open("error_in_the_beginning.txt") as fileError:
                     writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
                     changeDelayOnceWrite("change_delay_once.txt" , 1)
                     writeBoolErrors(0)
@@ -325,7 +349,9 @@ except: # if anything is wrong
             with open("updateNumber.txt") as file:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_send("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+                email_sendToMixalis("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+                email_sendToMe("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+
             print("Email just sent... Purpose: Error")
             write_error("run_after_error.txt" , 1)
         driver.quit()   # quit firefox
