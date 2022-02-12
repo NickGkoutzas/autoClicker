@@ -223,41 +223,41 @@ try:
 
 
     # main loop
-    while(currentPosUpdate < numOfMachines and readTotalUpdates() < 200):    # for all machines 
+    while(currentPosUpdate < numOfMachines):    # for all machines 
         current_time = datetime.datetime.now().time()   # get current time
         if(not current_time < on_time and not current_time >= off_time):
             activate_send = True
   
+            if( readTotalUpdates() < 200 ):
+                with open("updateNumber.txt") as file:
+                    currentPosUpdate = int(file.read())  # read the number from file
+                    machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
+                
+                #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                #updateMachine.click()       # press the "update" button
 
-            with open("updateNumber.txt") as file:
-                currentPosUpdate = int(file.read())  # read the number from file
-                machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
-            
-            #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
-            #updateMachine.click()       # press the "update" button
 
+                machinesEachUpdate[currentPosUpdate] += 1
+                with open("updateNumber.txt") as file:
+                    replace_line("MachinesEachUpdate.txt" , int( file.read() ) , machinesEachUpdate)
 
-            machinesEachUpdate[currentPosUpdate] += 1
-            with open("updateNumber.txt") as file:
-                replace_line("MachinesEachUpdate.txt" , int( file.read() ) , machinesEachUpdate)
-
-            totalUpdates += 1
-            fileTotal = open("totalUpdates.txt", "w")    # open the file
-            fileTotal.write(str(totalUpdates))   # write the number in the file
-            fileTotal.flush() 
-            
-            with open("totalUpdates.txt" , 'r') as fileTotal_R:
-                if( int(fileTotal_R.read()) == 1 ):
-                    today = date.today()
-                    str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    email_send("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
-                    print("Email sent... Done")
-                    print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                        
-            currentPosUpdate += 1       # increase current position of machine update
-            file = open("updateNumber.txt", "w")    # open the file
-            file.write(str(currentPosUpdate))   # write the number in the file
-            file.flush()    
+                totalUpdates += 1
+                fileTotal = open("totalUpdates.txt", "w")    # open the file
+                fileTotal.write(str(totalUpdates))   # write the number in the file
+                fileTotal.flush() 
+                
+                with open("totalUpdates.txt" , 'r') as fileTotal_R:
+                    if( int(fileTotal_R.read()) == 1 ):
+                        today = date.today()
+                        str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
+                        email_send("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
+                        print("Email sent... Done")
+                        print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                            
+                currentPosUpdate += 1       # increase current position of machine update
+                file = open("updateNumber.txt", "w")    # open the file
+                file.write(str(currentPosUpdate))   # write the number in the file
+                file.flush()    
 
             if(currentPosUpdate == numOfMachines):  # if update of all machines finished
                 currentPosUpdate = 0                    # start again
