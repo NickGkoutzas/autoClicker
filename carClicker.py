@@ -6,7 +6,7 @@ from datetime import datetime , time , date
 import time , datetime , os , sys , smtplib , linecache
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+from selenium.webdriver.firefox.options import Options
 
 totalUpdateOfTheDay = 200
 activate_send = True
@@ -15,12 +15,13 @@ numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 
-on_time = datetime.datetime.strptime('00:00:00' , '%H:%M:%S').time()    # start updates at this time
-off_time = datetime.datetime.strptime('01:55:00' , '%H:%M:%S').time()   # stop updates at this time
+on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
+off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
 
-
-driver = webdriver.Firefox()     # call Firefox 
+options = Options()
+options.add_argument('--headless')
+driver = webdriver.Firefox(options=options)     # call Firefox 
 
 
 def updatesStartedAt():
@@ -32,7 +33,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds , TotalUpdates__
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = finalTime - currentTime
-    return ( ( ( ( int(difference.total_seconds() ) / 60 ) / TotalUpdates__) * 60 ) - 20) # in seconds
+    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / TotalUpdates__) * 60 ) ) - 5 )  # in seconds
 
 
 def read_delay(file_name):
@@ -112,8 +113,8 @@ def readTotalUpdates():
 
 
 def email_sendToMixalis(SUBJECT , message):
-    FROM = "emailFrom"
-    TO = "emailTo"
+    FROM = "FROM"
+    TO = "TO-1"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -122,7 +123,7 @@ def email_sendToMixalis(SUBJECT , message):
     HTML_BODY = MIMEText(message, 'html')
     MESSAGE.attach(HTML_BODY)
     server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcodeFrom"
+    password = "passcode"
     server.starttls()
     server.login(FROM,password)
     server.sendmail(FROM , TO , MESSAGE.as_string() )
@@ -131,8 +132,8 @@ def email_sendToMixalis(SUBJECT , message):
 
 
 def email_sendToMe(SUBJECT , message):
-    FROM = "emailFrom"
-    TO = "emailTo"
+    FROM = "FROM"
+    TO = "TO-2"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -141,7 +142,7 @@ def email_sendToMe(SUBJECT , message):
     HTML_BODY = MIMEText(message, 'html')
     MESSAGE.attach(HTML_BODY)
     server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcodeFrom"
+    password = "passcode"
     server.starttls()
     server.login(FROM,password)
     server.sendmail(FROM , TO , MESSAGE.as_string() )
@@ -170,7 +171,7 @@ try:
     driver.get("https://www.car.gr/login/")
     
     username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys("username")    # give username
-    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("passcode")     # give password
+    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("password")     # give password
     time.sleep(1)
 
     log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
@@ -253,8 +254,8 @@ try:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
                 
-                #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
-                #updateMachine.click()       # press the "update" button
+                updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -274,7 +275,7 @@ try:
                         email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         print("Email sent... Done")
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                            
+                    print("Total updates till now: " + open("totalUpdates.txt").read())
                 currentPosUpdate += 1       # increase current position of machine update
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
@@ -287,11 +288,12 @@ try:
                 file.flush() 
 
             if( read_error("run_after_error.txt") == 1 ):
-                email_sendToMixalis("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + ":" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                email_sendToMe("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + ":" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToMixalis("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToMe("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 write_error("run_after_error.txt" , 0)
                 print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                
+
+
             time.sleep( read_delay("delay.txt") )              # wait for X minutes
 
         elif(activate_send and current_time > off_time):
@@ -309,11 +311,14 @@ try:
                     line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_sendToMixalis("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
-                email_sendToMe("'www.car.gr' Update ~ " + str_date , str( fileTotal.read() ) + " updates were performed successfully.<br>" + all_machines_updates_number)
+                email_sendToMixalis("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
+                email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
                 print("Email just sent... Purpose: Success")
             
             # reset all files for the new day    
+            
+            if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+                os.remove("/home/nick/autoClicker/geckodriver.log")
             file = open("updateNumber.txt", "w")    # open the file
             file.write(str(0))   # write the number in the file
             file.flush() 
