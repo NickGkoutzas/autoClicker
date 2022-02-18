@@ -9,7 +9,6 @@ from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
 
 totalUpdateOfTheDay = 200
-activate_send = True
 totalUpdates = 0
 numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
@@ -247,7 +246,6 @@ try:
     while(currentPosUpdate < numOfMachines):    # for all machines 
         current_time = datetime.datetime.now().time()   # get current time
         if(not current_time < on_time and not current_time >= off_time):
-            activate_send = True
   
             if( readTotalUpdates() < 200 ):
                 with open("updateNumber.txt") as file:
@@ -296,8 +294,7 @@ try:
 
             time.sleep( read_delay("delay.txt") )              # wait for X minutes
 
-        elif(activate_send and current_time > off_time):
-            activate_send = False
+        elif(current_time > off_time):
             all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
             line = linecache.getline("MachinesEachUpdate.txt" , 0)
             k = 0
@@ -334,12 +331,17 @@ try:
                 fileEach.write(str(0) + "\n")
             fileEach.close()
 
+            if( int( open("change_delay_once.txt").read() == 0 ) ): # change_delay_once.txt is '0' , then it goes to '1'
+                # executes only once per day...
+                time.sleep( 7*3600 )    # sleep for 6 hours & 55 minutes (23:55:00 - 06:55:00)
+
             changeDelayOnceWrite("change_delay_once.txt" , 1)
             writeNumOfErrors("let_5_errors_happen.txt" , 0)
             writeBoolErrors(0)
             write_delay("delay.txt" , 5)
             write_error("run_after_error.txt" , 0)
 
+            
 
 except: # if anything is wrong
         if( int( open("error_in_the_beginning.txt").read() ) == 0):
