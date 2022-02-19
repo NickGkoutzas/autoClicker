@@ -167,28 +167,6 @@ def email_sendToMe(SUBJECT , message):
 # to enable 'less secure apps' 
 
 
-if( int( open("change_delay_once.txt").read() == 1 ) ):
-    # reset all files for the new day (start !)
-    file = open("updateNumber.txt", "w")    # open the file
-    file.write(str(0))   # write the number in the file
-    file.flush() 
-    file.close()
-
-    fileTotal = open("totalUpdates.txt", "w")    # open the file
-    fileTotal.write(str(0))   # write the number in the file
-    fileTotal.flush()
-    fileTotal.close()
-
-    fileEach = open("MachinesEachUpdate.txt" , "w")
-    for i in range(0 , numOfMachines):
-        fileEach.write(str(0) + "\n")
-    fileEach.close()
-
-    changeDelayOnceWrite("change_delay_once.txt" , 1)
-    writeNumOfErrors("let_5_errors_happen.txt" , 0)
-    writeBoolErrors(0)
-    write_delay("delay.txt" , 5)
-    write_error("run_after_error.txt" , 0)
 
 try:
     writeBoolErrors(0) # before join URLs
