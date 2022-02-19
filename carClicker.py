@@ -110,7 +110,6 @@ def readTotalUpdates():
     read_update = open("totalUpdates.txt" , 'r')
     return int( read_update.read() )
 
-
 def email_sendToMixalis(SUBJECT , message):
     FROM = "FROM"
     TO = "TO-1"
@@ -153,8 +152,30 @@ def email_sendToMe(SUBJECT , message):
 # https://www.youtube.com/redirect?v=YPiHBtddefI&redir_token=QUFFLUhqa3phOTlrSjk3RWpRNThXSHJBUDNobzRpNXlFZ3xBQ3Jtc0ttbzhFSXhmai1Mb19ORG9NYzVGa2lwcVNyWG9TYnkxWDZPd1RiQ2JPX05LTlRPQVpTeVMwN0tQWFN6SlZwWThCZFBWcmhFQTZfSlkwVzZ5NXVYaWNVRjVzYTdpT015bXY5UnVqTWFXcmpvQURIVHRBNA%3D%3D&event=video_description&q=https%3A%2F%2Fmyaccount.google.com%2Flesssecureapps%3Fpli%3D1
 # to enable 'less secure apps' 
 
+if( int( open("change_delay_once.txt").read() == 1 ) ):
+    # reset all files for the new day (start !)
+    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+        os.remove("/home/nick/autoClicker/geckodriver.log")
+    file = open("updateNumber.txt", "w")    # open the file
+    file.write(str(0))   # write the number in the file
+    file.flush() 
+    file.close()
 
+    fileTotal = open("totalUpdates.txt", "w")    # open the file
+    fileTotal.write(str(0))   # write the number in the file
+    fileTotal.flush()
+    fileTotal.close()
 
+    fileEach = open("MachinesEachUpdate.txt" , "w")
+    for i in range(0 , numOfMachines):
+        fileEach.write(str(0) + "\n")
+    fileEach.close()
+
+    changeDelayOnceWrite("change_delay_once.txt" , 1)
+    writeNumOfErrors("let_5_errors_happen.txt" , 0)
+    writeBoolErrors(0)
+    write_delay("delay.txt" , 5)
+    write_error("run_after_error.txt" , 0)
 
 try:
     writeBoolErrors(0) # before join URLs
