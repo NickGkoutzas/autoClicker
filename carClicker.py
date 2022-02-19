@@ -18,6 +18,10 @@ on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start 
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
 
+if( int( open("change_delay_once.txt").read() == 1 ) ):
+    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+        os.remove("/home/nick/autoClicker/geckodriver.log")
+
 options = Options()
 options.add_argument('--headless')
 driver = webdriver.Firefox(options=options)     # call Firefox 
@@ -154,8 +158,6 @@ def email_sendToMe(SUBJECT , message):
 
 if( int( open("change_delay_once.txt").read() == 1 ) ):
     # reset all files for the new day (start !)
-    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
-        os.remove("/home/nick/autoClicker/geckodriver.log")
     file = open("updateNumber.txt", "w")    # open the file
     file.write(str(0))   # write the number in the file
     file.flush() 
