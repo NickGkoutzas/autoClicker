@@ -1,9 +1,9 @@
-# Nick Gkoutzas , Feb 4 2022
+# Nick Gkoutzas , Feb 2022
 
 
 from selenium import webdriver
 from datetime import datetime , time , date
-import time , datetime , os , sys , smtplib , linecache
+import time , datetime , os , sys , smtplib , linecache , socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
@@ -20,12 +20,93 @@ off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop u
 now = datetime.datetime.now()
 
 if( int( open("change_delay_once.txt").read() == 1 ) ):
-    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):   # file path may not be the same
         os.remove("/home/nick/autoClicker/geckodriver.log")
+
+
+
+def __internetStatusError__Read(file_name): # '0' at start   , '1' if internet connection error 
+    status = open(file_name , 'r')
+    fileStat = status.read()
+    fileStat.close()
+    return fileStat
+
+
+
+def __internetStatusError__Write(file_name , status): # '1' if an error occured , else '0' -> normal
+    delay = open("internet_statusError.txt" , 'w')
+    delay.write( str(status) )
+    delay.flush()
+    delay.close()
+
+
+
+
+def check_internet_connection():
+    try:
+        socket.create_connection(("1.1.1.1", 53))
+        return True
+    except OSError:
+        pass
+    return False
+
+
+
+def email_sendToOther(SUBJECT , message):
+    FROM = "FROM"
+    TO = "TO-1"
+
+    MESSAGE = MIMEMultipart('alternative')
+    MESSAGE['subject'] = SUBJECT
+    MESSAGE['To'] = TO
+    MESSAGE['From'] = FROM
+    HTML_BODY = MIMEText(message, 'html')
+    MESSAGE.attach(HTML_BODY)
+    server = smtplib.SMTP("smtp.gmail.com:587")    
+    password = "passcode"
+    server.starttls()
+    server.login(FROM,password)
+    server.sendmail(FROM , TO , MESSAGE.as_string() )
+    server.quit()
+    return TO
+
+
+def email_sendToMe(SUBJECT , message):
+    FROM = "FROM"
+    TO = "TO-2"
+
+    MESSAGE = MIMEMultipart('alternative')
+    MESSAGE['subject'] = SUBJECT
+    MESSAGE['To'] = TO
+    MESSAGE['From'] = FROM
+    HTML_BODY = MIMEText(message, 'html')
+    MESSAGE.attach(HTML_BODY)
+    server = smtplib.SMTP("smtp.gmail.com:587")    
+    password = "passcode"
+    server.starttls()
+    server.login(FROM,password)
+    server.sendmail(FROM , TO , MESSAGE.as_string() )
+    server.quit()
+    return TO
+
+
+
+
+while( not check_internet_connection() or __internetStatusError__Read("internet_statusError.txt") ):
+    time.sleep(5)
+    if( check_internet_connection() ):
+        __internetStatusError__Write("internet_statusError.txt" , 1)
+        email_sendToOther("[SOLVED] Internet connection error" , "There was a problem connecting to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+        email_sendToMe("[SOLVED] Internet connection error" , "There was a problem connecting to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+
+
 
 options = Options()
 options.add_argument('--headless')
 driver = webdriver.Firefox(options=options)     # call Firefox 
+
+
+
 
 
 def updatesStartedAt():
@@ -37,7 +118,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds , TotalUpdates__
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = finalTime - currentTime
-    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / TotalUpdates__) * 60 ) ) - 5 )  # in seconds
+    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / int( open("totalUpdates.txt").read() ) ) * 60 ) ) - 5 )  # in seconds
 
 
 
@@ -122,43 +203,6 @@ def readTotalUpdates():
     return int( read_update.read() )
 
 
-
-def email_sendToMixalis(SUBJECT , message):
-    FROM = "FROM"
-    TO = "TO-1"
-
-    MESSAGE = MIMEMultipart('alternative')
-    MESSAGE['subject'] = SUBJECT
-    MESSAGE['To'] = TO
-    MESSAGE['From'] = FROM
-    HTML_BODY = MIMEText(message, 'html')
-    MESSAGE.attach(HTML_BODY)
-    server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcode"
-    server.starttls()
-    server.login(FROM,password)
-    server.sendmail(FROM , TO , MESSAGE.as_string() )
-    server.quit()
-    return TO
-
-
-def email_sendToMe(SUBJECT , message):
-    FROM = "FROM"
-    TO = "TO-2"
-
-    MESSAGE = MIMEMultipart('alternative')
-    MESSAGE['subject'] = SUBJECT
-    MESSAGE['To'] = TO
-    MESSAGE['From'] = FROM
-    HTML_BODY = MIMEText(message, 'html')
-    MESSAGE.attach(HTML_BODY)
-    server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcode"
-    server.starttls()
-    server.login(FROM,password)
-    server.sendmail(FROM , TO , MESSAGE.as_string() )
-    server.quit()
-    return TO
 
 
 
@@ -283,7 +327,7 @@ try:
                     if( int(fileTotal_R.read()) == 1 ):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        email_sendToMixalis("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
+                        email_sendToOther("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         print("Email sent... Done")
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
@@ -300,7 +344,7 @@ try:
                 file.flush() 
 
             if( read_error("run_after_error.txt") == 1 ):
-                email_sendToMixalis("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToOther("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 email_sendToMe("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 write_error("run_after_error.txt" , 0)
                 print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
@@ -324,13 +368,13 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    email_sendToMixalis("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
+                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
                     email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
                     print("Email just sent... Purpose: Success")
                 
                 # reset all files for the new day    
                 
-                if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+                if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):   # file path may not be the same
                     os.remove("/home/nick/autoClicker/geckodriver.log")
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(0))   # write the number in the file
@@ -355,10 +399,21 @@ try:
                 writeBoolErrors(0)
                 write_delay("delay.txt" , 5)
                 write_error("run_after_error.txt" , 0)
+                __internetStatusError__Write("internet_statusError.txt" , 0)
+                
 
             
 
 except: # if anything is wrong
+        if( not check_internet_connection() ):
+            __internetStatusError__Write("internet_statusError.txt" , 1)
+            changeDelayOnceWrite("change_delay_once.txt" , 1)
+            fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
+            fileInternetError.write( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )   # write the number in the file
+            fileInternetError.flush()
+            fileInternetError.close()
+            
+
         if( int( open("error_in_the_beginning.txt").read() ) == 0):
             if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
                 with open("error_in_the_beginning.txt") as fileError:
@@ -366,12 +421,13 @@ except: # if anything is wrong
                     changeDelayOnceWrite("change_delay_once.txt" , 1)
                     writeBoolErrors(0)
                     write_delay("delay.txt" , 5)
+        
         else:
             print("AN ERROR OCCURED. Trying again. Loading...")
             with open("updateNumber.txt") as file:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_sendToMixalis("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+                email_sendToOther("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
                 email_sendToMe("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
 
             print("Email just sent... Purpose: Error")
