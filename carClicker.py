@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
 
+
 totalUpdateOfTheDay = 200
 totalUpdates = 0
 numOfMachines = 42      # number of machines
@@ -39,6 +40,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds , TotalUpdates__
     return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / TotalUpdates__) * 60 ) ) - 5 )  # in seconds
 
 
+
 def read_delay(file_name):
     delay = open(file_name , 'r')
     numR = delay.read()
@@ -54,6 +56,7 @@ def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must
     delay.close()
 
 
+
 def write_error(file_name , write__):    # in the beginning it's '0'
     error__ = open(file_name , 'w')
     error__.write( str(write__) )
@@ -61,9 +64,12 @@ def write_error(file_name , write__):    # in the beginning it's '0'
     error__.close()
 
 
+
 def read_error(file_name):   
     error__ = open(file_name , 'r')
     return int(error__.read() )
+
+
 
 def replace_line(file_name , line_num , text):
     lines = open(file_name, 'r').readlines()
@@ -80,6 +86,7 @@ def changeDelayOnceWrite(file_name , number): # in the beginning 'number' must b
     once.write( str(number) )
     once.flush()
     once.close()
+
 
 
 def changeDelayOnceRead(file_name): 
@@ -113,6 +120,8 @@ def writeBoolErrors(number): # in the beginning must be '0'
 def readTotalUpdates():
     read_update = open("totalUpdates.txt" , 'r')
     return int( read_update.read() )
+
+
 
 def email_sendToMixalis(SUBJECT , message):
     FROM = "FROM"
@@ -152,9 +161,11 @@ def email_sendToMe(SUBJECT , message):
     return TO
 
 
+
 # Go to this link
 # https://www.youtube.com/redirect?v=YPiHBtddefI&redir_token=QUFFLUhqa3phOTlrSjk3RWpRNThXSHJBUDNobzRpNXlFZ3xBQ3Jtc0ttbzhFSXhmai1Mb19ORG9NYzVGa2lwcVNyWG9TYnkxWDZPd1RiQ2JPX05LTlRPQVpTeVMwN0tQWFN6SlZwWThCZFBWcmhFQTZfSlkwVzZ5NXVYaWNVRjVzYTdpT015bXY5UnVqTWFXcmpvQURIVHRBNA%3D%3D&event=video_description&q=https%3A%2F%2Fmyaccount.google.com%2Flesssecureapps%3Fpli%3D1
 # to enable 'less secure apps' 
+
 
 if( int( open("change_delay_once.txt").read() == 1 ) ):
     # reset all files for the new day (start !)
@@ -199,6 +210,7 @@ try:
     log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
     log_in_button.click()
     time.sleep(1)  
+
 
     with open("change_delay_once.txt" , 'r'):
         if( changeDelayOnceRead("change_delay_once.txt") == 1 ):
@@ -256,6 +268,7 @@ try:
     ]
 
 
+
     with open("MachinesEachUpdate.txt") as fileEach:
         for i in range(0 , numOfMachines):
             machinesEachUpdate[i] = int(fileEach.readline())
@@ -266,7 +279,7 @@ try:
 
 
     # main loop
-    while(currentPosUpdate < numOfMachines):    # for all machines 
+    while(True):    # for ever
         current_time = datetime.datetime.now().time()   # get current time
         if(not current_time < on_time and not current_time >= off_time):
   
@@ -314,55 +327,56 @@ try:
                 write_error("run_after_error.txt" , 0)
                 print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
 
-
             time.sleep( read_delay("delay.txt") )              # wait for X minutes
 
+
+
         elif(current_time > off_time):
-            all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
-            line = linecache.getline("MachinesEachUpdate.txt" , 0)
-            k = 0
-            with open("totalUpdates.txt") as fileTotal , open("MachinesEachUpdate.txt") as fileEach:
-                for line in fileEach.readlines():
-                    if(k + 1 < 10):
-                        all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>"  
-                    else:
-                        all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>" 
-                    k += 1
-                    line = linecache.getline("MachinesEachUpdate.txt" , k+1)
-                today = date.today()
-                str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_sendToMixalis("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
-                email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
-                print("Email just sent... Purpose: Success")
-            
-            # reset all files for the new day    
-            
-            if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
-                os.remove("/home/nick/autoClicker/geckodriver.log")
-            file = open("updateNumber.txt", "w")    # open the file
-            file.write(str(0))   # write the number in the file
-            file.flush() 
-            file.close()
-
-            fileTotal = open("totalUpdates.txt", "w")    # open the file
-            fileTotal.write(str(0))   # write the number in the file
-            fileTotal.flush()
-            fileTotal.close()
-
-            fileEach = open("MachinesEachUpdate.txt" , "w")
-            for i in range(0 , numOfMachines):
-                fileEach.write(str(0) + "\n")
-            fileEach.close()
-
             if( int( open("change_delay_once.txt").read() == 0 ) ): # change_delay_once.txt is '0' , then it goes to '1'
-                # executes only once per day...
-                time.sleep( 7*3600 )    # sleep for 6 hours & 55 minutes (23:55:00 - 06:55:00)
+                all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
+                line = linecache.getline("MachinesEachUpdate.txt" , 0)
+                k = 0
+                with open("totalUpdates.txt") as fileTotal , open("MachinesEachUpdate.txt") as fileEach:
+                    for line in fileEach.readlines():
+                        if(k + 1 < 10):
+                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>"  
+                        else:
+                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>" 
+                        k += 1
+                        line = linecache.getline("MachinesEachUpdate.txt" , k+1)
+                    today = date.today()
+                    str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
+                    email_sendToMixalis("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
+                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
+                    print("Email just sent... Purpose: Success")
+                
+                # reset all files for the new day    
+                
+                if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):
+                    os.remove("/home/nick/autoClicker/geckodriver.log")
+                file = open("updateNumber.txt", "w")    # open the file
+                file.write(str(0))   # write the number in the file
+                file.flush() 
+                file.close()
 
-            changeDelayOnceWrite("change_delay_once.txt" , 1)
-            writeNumOfErrors("let_5_errors_happen.txt" , 0)
-            writeBoolErrors(0)
-            write_delay("delay.txt" , 5)
-            write_error("run_after_error.txt" , 0)
+                fileTotal = open("totalUpdates.txt", "w")    # open the file
+                fileTotal.write(str(0))   # write the number in the file
+                fileTotal.flush()
+                fileTotal.close()
+
+                fileEach = open("MachinesEachUpdate.txt" , "w")
+                for i in range(0 , numOfMachines):
+                    fileEach.write(str(0) + "\n")
+                fileEach.close()
+
+                # executes only once per day...
+                time.sleep( (6*3600) + (45*60) )    # sleep for 6 hours & 55 minutes (23:55:00 - 06:50:00)
+
+                changeDelayOnceWrite("change_delay_once.txt" , 1)
+                writeNumOfErrors("let_5_errors_happen.txt" , 0)
+                writeBoolErrors(0)
+                write_delay("delay.txt" , 5)
+                write_error("run_after_error.txt" , 0)
 
             
 
