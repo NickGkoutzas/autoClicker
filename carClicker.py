@@ -114,11 +114,12 @@ def updatesStartedAt():
 
 
 
-def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds , TotalUpdates__):
+def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
+    global totalUpdateOfTheDay
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = finalTime - currentTime
-    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / int( open("totalUpdates.txt").read() ) ) * 60 ) ) - 5 )  # in seconds
+    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 ) ) - 5 )  # in seconds
 
 
 
@@ -236,7 +237,7 @@ try:
 
     with open("change_delay_once.txt" , 'r'):
         if( changeDelayOnceRead("change_delay_once.txt") == 1 ):
-            write_delay("delay.txt" , computeDelay(23 , 55 , 0 , totalUpdateOfTheDay) )
+            write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
             changeDelayOnceWrite("change_delay_once.txt" , 0) # now you can't change anything in file -> (delay.txt)
 
     writeBoolErrors(1) # after join URLs
@@ -305,7 +306,7 @@ try:
         current_time = datetime.datetime.now().time()   # get current time
         if(not current_time < on_time and not current_time >= off_time):
   
-            if( readTotalUpdates() < 200 ):
+            if( readTotalUpdates() < totalUpdateOfTheDay ):
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
@@ -405,9 +406,9 @@ try:
             
 
 except: # if anything is wrong
+        changeDelayOnceWrite("change_delay_once.txt" , 1)
         if( not check_internet_connection() ):
             __internetStatusError__Write("internet_statusError.txt" , 1)
-            changeDelayOnceWrite("change_delay_once.txt" , 1)
             fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
             fileInternetError.write( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )   # write the number in the file
             fileInternetError.flush()
@@ -418,7 +419,6 @@ except: # if anything is wrong
             if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
                 with open("error_in_the_beginning.txt") as fileError:
                     writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
-                    changeDelayOnceWrite("change_delay_once.txt" , 1)
                     writeBoolErrors(0)
                     write_delay("delay.txt" , 5)
         
