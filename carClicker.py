@@ -1,9 +1,5 @@
 # Nick Gkoutzas , Feb 2022
 
-from asyncore import read
-from multiprocessing.connection import wait
-import threading
-
 
 from selenium import webdriver
 from datetime import datetime , time , date
