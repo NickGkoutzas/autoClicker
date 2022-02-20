@@ -1,5 +1,7 @@
 # Nick Gkoutzas , Feb 2022
 
+import threading
+
 
 from selenium import webdriver
 from datetime import datetime , time , date
@@ -14,10 +16,15 @@ totalUpdates = 0
 numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
+bad_internet_connection = 0
+
 
 on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
+
+
+
 
 if( int( open("change_delay_once.txt").read() == 1 ) ):
     if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):   # file path may not be the same
@@ -25,11 +32,13 @@ if( int( open("change_delay_once.txt").read() == 1 ) ):
 
 
 
+
+
 def __internetStatusError__Read(file_name): # '0' at start   , '1' if internet connection error 
     status = open(file_name , 'r')
     fileStat = status.read()
-    fileStat.close()
-    return fileStat
+    status.close()
+    return int(fileStat)
 
 
 
@@ -54,7 +63,7 @@ def check_internet_connection():
 
 def email_sendToOther(SUBJECT , message):
     FROM = "FROM"
-    TO = "TO-1"
+    TO = "TO-2"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -73,7 +82,7 @@ def email_sendToOther(SUBJECT , message):
 
 def email_sendToMe(SUBJECT , message):
     FROM = "FROM"
-    TO = "TO-2"
+    TO = "TO-1"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -92,34 +101,48 @@ def email_sendToMe(SUBJECT , message):
 
 
 
-while( not check_internet_connection() or __internetStatusError__Read("internet_statusError.txt") ):
-    time.sleep(5)
-    if( check_internet_connection() ):
-        __internetStatusError__Write("internet_statusError.txt" , 1)
-        email_sendToOther("[SOLVED] Internet connection error" , "There was a problem connecting to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-        email_sendToMe("[SOLVED] Internet connection error" , "There was a problem connecting to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+
+def __totalErrorsOfDay__R(file_name):
+    errors__ = open(file_name , 'r')
+    numOfErrors = errors__.read()
+    errors__.close()
+    return int(numOfErrors)
 
 
 
-options = Options()
-options.add_argument('--headless')
-driver = webdriver.Firefox(options=options)     # call Firefox 
-
-
+def __totalErrorsOfDay__W(file_name):
+    numOfErrors = int( __totalErrorsOfDay__R(file_name) )
+    numOfErrors += 1
+    errors__ = open(file_name , 'w')
+    errors__.write( str(numOfErrors) )
+    errors__.flush()
+    errors__.close()
 
 
 
 def updatesStartedAt():
+    now = datetime.datetime.now()
     return ( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
 
 
 
 def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     global totalUpdateOfTheDay
+    now = datetime.datetime.now()
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
-    difference = finalTime - currentTime
-    return ( ( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 ) ) - 5 )  # in seconds
+    difference = abs(finalTime - currentTime)
+    return ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60  # in seconds
+
+
+
+
+def computeTimeSleep():
+    now = datetime.datetime.now()
+    currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
+    startTime = datetime.datetime(now.year, now.month , now.day , 6 , 59 , 50)
+    difference = abs(currentTime - startTime)
+    return (difference.total_seconds() )
 
 
 
@@ -206,6 +229,31 @@ def readTotalUpdates():
 
 
 
+def error_and_back_to_internet():
+    if( not check_internet_connection() ):
+        print("Disconnected from the network...")
+        __totalErrorsOfDay__W("totalErrors.txt")
+        
+        __internetStatusError__Write("internet_statusError.txt" , 1)
+        fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
+        now = datetime.datetime.now()
+        fileInternetError.write( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )   # write the number in the file
+        fileInternetError.flush()
+        fileInternetError.close()
+
+        while( not check_internet_connection() or __internetStatusError__Read("internet_statusError.txt") ):
+            time.sleep(1)
+            if( check_internet_connection() ):
+                print("Connected again...")
+                write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
+                __internetStatusError__Write("internet_statusError.txt" , 0)
+                now = datetime.datetime.now()
+                email_sendToOther("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToMe("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Sent email due to network disconnection... > " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+
+
+
 
 # Go to this link
 # https://www.youtube.com/redirect?v=YPiHBtddefI&redir_token=QUFFLUhqa3phOTlrSjk3RWpRNThXSHJBUDNobzRpNXlFZ3xBQ3Jtc0ttbzhFSXhmai1Mb19ORG9NYzVGa2lwcVNyWG9TYnkxWDZPd1RiQ2JPX05LTlRPQVpTeVMwN0tQWFN6SlZwWThCZFBWcmhFQTZfSlkwVzZ5NXVYaWNVRjVzYTdpT015bXY5UnVqTWFXcmpvQURIVHRBNA%3D%3D&event=video_description&q=https%3A%2F%2Fmyaccount.google.com%2Flesssecureapps%3Fpli%3D1
@@ -213,27 +261,44 @@ def readTotalUpdates():
 
 
 
+options = Options()
+options.add_argument('--headless')
+error_and_back_to_internet()
+driver = webdriver.Firefox(options=options)     # call Firefox 
+error_and_back_to_internet()
+
+
+
 try:
     writeBoolErrors(0) # before join URLs
+    error_and_back_to_internet()
 
     link_site = "https://www.car.gr"    # link for car.gr 
     driver.get(link_site)        # open car.gr site
     time.sleep(1)
+    error_and_back_to_internet()
 
     cookies = driver.find_element_by_css_selector(".css-ofc9r3")      # accept cookies
     cookies.click()
     time.sleep(1)
-    
+    error_and_back_to_internet()
+
     driver.get("https://www.car.gr/login/")
-    
+    error_and_back_to_internet()
+
     username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys("username")    # give username
+    error_and_back_to_internet()
+
     password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("password")     # give password
     time.sleep(1)
-
+    error_and_back_to_internet()
+    
     log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
+    error_and_back_to_internet()
+
     log_in_button.click()
     time.sleep(1)  
-
+    error_and_back_to_internet()
 
     with open("change_delay_once.txt" , 'r'):
         if( changeDelayOnceRead("change_delay_once.txt") == 1 ):
@@ -311,7 +376,9 @@ try:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
                 
+                error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                error_and_back_to_internet()
                 updateMachine.click()       # press the "update" button
 
 
@@ -350,7 +417,10 @@ try:
                 write_error("run_after_error.txt" , 0)
                 print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
 
-            time.sleep( read_delay("delay.txt") )              # wait for X minutes
+
+            for i in range( 1 , int(read_delay("delay.txt")) ): # sleeping... & checking for network disconnection
+                time.sleep(1)
+                error_and_back_to_internet()
 
 
 
@@ -369,8 +439,8 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
-                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>" + all_machines_updates_number)
+                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
+                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
                     print("Email just sent... Purpose: Success")
                 
                 # reset all files for the new day    
@@ -393,7 +463,8 @@ try:
                 fileEach.close()
 
                 # executes only once per day...
-                time.sleep( (6*3600) + (45*60) )    # sleep for 6 hours & 55 minutes (23:55:00 - 06:50:00)
+                time.sleep(10*60)
+                computeTimeSleep()  # sleep till tomorrow morning at 7pm
 
                 changeDelayOnceWrite("change_delay_once.txt" , 1)
                 writeNumOfErrors("let_5_errors_happen.txt" , 0)
@@ -401,36 +472,41 @@ try:
                 write_delay("delay.txt" , 5)
                 write_error("run_after_error.txt" , 0)
                 __internetStatusError__Write("internet_statusError.txt" , 0)
+
+                errors__ = open("totalErrors.txt" , 'w')
+                errors__.write( str(0) )
+                errors__.flush()
+                errors__.close()
+
+                internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
+                internet_err_DATE_file.write( str(0) )
+                internet_err_DATE_file.flush()
+                internet_err_DATE_file.close()
                 
 
             
 
 except: # if anything is wrong
-        changeDelayOnceWrite("change_delay_once.txt" , 1)
-        if( not check_internet_connection() ):
-            __internetStatusError__Write("internet_statusError.txt" , 1)
-            fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
-            fileInternetError.write( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )   # write the number in the file
-            fileInternetError.flush()
-            fileInternetError.close()
-            
+        print("AN ERROR OCCURED. Trying again. Loading...")
 
         if( int( open("error_in_the_beginning.txt").read() ) == 0):
             if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
                 with open("error_in_the_beginning.txt") as fileError:
+                    __totalErrorsOfDay__W("totalErrors.txt")
+                    changeDelayOnceWrite("change_delay_once.txt" , 1)
                     writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
                     writeBoolErrors(0)
                     write_delay("delay.txt" , 5)
         
         else:
-            print("AN ERROR OCCURED. Trying again. Loading...")
             with open("updateNumber.txt") as file:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_sendToOther("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
                 email_sendToMe("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-
             print("Email just sent... Purpose: Error")
             write_error("run_after_error.txt" , 1)
+            __totalErrorsOfDay__W("totalErrors.txt")
+            changeDelayOnceWrite("change_delay_once.txt" , 1)
         driver.quit()   # quit firefox
         os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
