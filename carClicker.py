@@ -1,6 +1,7 @@
 # Nick Gkoutzas , Feb 2022
 
 from asyncore import read
+from multiprocessing.connection import wait
 import threading
 
 
@@ -18,7 +19,6 @@ numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 bad_internet_connection = 0
-
 
 on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
@@ -370,8 +370,13 @@ try:
     # main loop
     while(True):    # for ever
         current_time = datetime.datetime.now().time()   # get current time
+
         if(not current_time < on_time and not current_time >= off_time):
-  
+
+            file = open("wait.txt", "w")    # open the file
+            file.write(str(1))   # write the number in the file
+            file.flush()
+
             if( readTotalUpdates() < totalUpdateOfTheDay ):
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
@@ -426,7 +431,11 @@ try:
 
 
         elif(current_time > off_time):
-            if( int( open("change_delay_once.txt").read() == 0 ) ): # change_delay_once.txt is '0' , then it goes to '1'
+            if( int( open("wait.txt" , 'r').read() ) == 1):
+                file = open("wait.txt", "w")    # open the file
+                file.write(str(0))   # write the number in the file
+                file.flush()
+
                 all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
                 line = linecache.getline("MachinesEachUpdate.txt" , 0)
                 k = 0
@@ -463,9 +472,6 @@ try:
                     fileEach.write(str(0) + "\n")
                 fileEach.close()
 
-                # executes only once per day...
-                time.sleep(10*60)
-                time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm
 
                 changeDelayOnceWrite("change_delay_once.txt" , 1)
                 writeNumOfErrors("let_5_errors_happen.txt" , 0)
@@ -483,7 +489,11 @@ try:
                 internet_err_DATE_file.write( str(0) )
                 internet_err_DATE_file.flush()
                 internet_err_DATE_file.close()
-                
+
+
+                # executes only once per day...
+                time.sleep(10*60)
+                time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm                
 
             
 
