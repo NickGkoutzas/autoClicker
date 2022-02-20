@@ -143,7 +143,7 @@ def computeTimeSleep():
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     startTime = datetime.datetime(now.year, now.month , now.day , 6 , 59 , 50)
     difference = abs(currentTime - startTime)
-    return (difference.total_seconds() )
+    return int(difference.total_seconds() )
 
 
 
@@ -465,7 +465,7 @@ try:
 
                 # executes only once per day...
                 time.sleep(10*60)
-                computeTimeSleep()  # sleep till tomorrow morning at 7pm
+                time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm
 
                 changeDelayOnceWrite("change_delay_once.txt" , 1)
                 writeNumOfErrors("let_5_errors_happen.txt" , 0)
