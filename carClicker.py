@@ -1,5 +1,6 @@
 # Nick Gkoutzas , Feb 2022
 
+from asyncore import read
 import threading
 
 
@@ -150,7 +151,7 @@ def read_delay(file_name):
     delay = open(file_name , 'r')
     numR = delay.read()
     delay.close()
-    return float(numR)
+    return int(numR)
 
 
 
@@ -488,12 +489,12 @@ try:
 
 except: # if anything is wrong
         print("AN ERROR OCCURED. Trying again. Loading...")
+        changeDelayOnceWrite("delay.txt", int( open("delay.txt").read() ) - 15 )
+        __totalErrorsOfDay__W("totalErrors.txt")
 
         if( int( open("error_in_the_beginning.txt").read() ) == 0):
             if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
                 with open("error_in_the_beginning.txt") as fileError:
-                    __totalErrorsOfDay__W("totalErrors.txt")
-                    changeDelayOnceWrite("change_delay_once.txt" , 1)
                     writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
                     writeBoolErrors(0)
                     write_delay("delay.txt" , 5)
@@ -506,7 +507,5 @@ except: # if anything is wrong
                 email_sendToMe("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
             print("Email just sent... Purpose: Error")
             write_error("run_after_error.txt" , 1)
-            __totalErrorsOfDay__W("totalErrors.txt")
-            changeDelayOnceWrite("change_delay_once.txt" , 1)
         driver.quit()   # quit firefox
         os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
