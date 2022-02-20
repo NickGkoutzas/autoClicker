@@ -489,7 +489,7 @@ try:
 
 except: # if anything is wrong
         print("AN ERROR OCCURED. Trying again. Loading...")
-        changeDelayOnceWrite("delay.txt", int( open("delay.txt").read() ) - 15 )
+        changeDelayOnceWrite("delay.txt", int( open("delay.txt").read() ) - 10 )
         __totalErrorsOfDay__W("totalErrors.txt")
 
         if( int( open("error_in_the_beginning.txt").read() ) == 0):
