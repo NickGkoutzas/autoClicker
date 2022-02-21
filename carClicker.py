@@ -60,7 +60,7 @@ def check_internet_connection():
 
 def email_sendToOther(SUBJECT , message):
     FROM = "FROM"
-    TO = "TO-2"
+    TO = "TO-1"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -79,7 +79,7 @@ def email_sendToOther(SUBJECT , message):
 
 def email_sendToMe(SUBJECT , message):
     FROM = "FROM"
-    TO = "TO-1"
+    TO = "TO-2"
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -129,7 +129,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = abs(finalTime - currentTime)
-    return ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60  # in seconds
+    return int( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 )  # in seconds
 
 
 
@@ -140,14 +140,6 @@ def computeTimeSleep():
     startTime = datetime.datetime(now.year, now.month , now.day , 6 , 59 , 50)
     difference = abs(currentTime - startTime)
     return int(difference.total_seconds() )
-
-
-
-def read_delay(file_name):
-    delay = open(file_name , 'r')
-    numR = delay.read()
-    delay.close()
-    return int(numR)
 
 
 
@@ -211,13 +203,6 @@ def readNumOfErrors(file_name):
 
 
 
-def writeBoolErrors(number): # in the beginning must be '0'
-    write_err = open("error_in_the_beginning.txt" , 'w')
-    write_err.write( str(number) )
-    write_err.flush()
-    write_err.close()
-
-
 
 def readTotalUpdates():
     read_update = open("totalUpdates.txt" , 'r')
@@ -267,9 +252,8 @@ error_and_back_to_internet()
 
 
 try:
-    writeBoolErrors(0) # before join URLs
     error_and_back_to_internet()
-
+    
     link_site = "https://www.car.gr"    # link for car.gr 
     driver.get(link_site)        # open car.gr site
     time.sleep(1)
@@ -292,7 +276,7 @@ try:
     
     log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
     error_and_back_to_internet()
-
+    
     log_in_button.click()
     time.sleep(1)  
     error_and_back_to_internet()
@@ -302,7 +286,6 @@ try:
             write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
             changeDelayOnceWrite("change_delay_once.txt" , 0) # now you can't change anything in file -> (delay.txt)
 
-    writeBoolErrors(1) # after join URLs
 
     #======================================================================================================================================================================
 
@@ -378,10 +361,10 @@ try:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
                 
-                error_and_back_to_internet()
-                updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
-                error_and_back_to_internet()
-                updateMachine.click()       # press the "update" button
+                #error_and_back_to_internet()
+                #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                #error_and_back_to_internet()
+                #updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -400,8 +383,10 @@ try:
                         email_sendToOther("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         print("Email sent... Done")
+                        now = datetime.datetime.now()
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                     print("Total updates till now: " + open("totalUpdates.txt").read())
+                    
                 currentPosUpdate += 1       # increase current position of machine update
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
@@ -414,17 +399,16 @@ try:
                 file.flush() 
 
             if( read_error("run_after_error.txt") == 1 ):
-                email_sendToOther("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                email_sendToMe("Error solved in 'www.car.gr'" , "The error in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToOther("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                email_sendToMe("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 write_error("run_after_error.txt" , 0)
-                print("Running normally again, due to an error...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Running normally again, due to an 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+            
 
-
-            for i in range( 1 , int(read_delay("delay.txt")) ): # sleeping... & checking for network disconnection
+            for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection
                 time.sleep(1)
                 error_and_back_to_internet()
-
-
+            
 
         elif(current_time > off_time):
             if( int( open("wait.txt" , 'r').read() ) == 1):
@@ -471,7 +455,6 @@ try:
 
                 changeDelayOnceWrite("change_delay_once.txt" , 1)
                 writeNumOfErrors("let_5_errors_happen.txt" , 0)
-                writeBoolErrors(0)
                 write_delay("delay.txt" , 5)
                 write_error("run_after_error.txt" , 0)
                 __internetStatusError__Write("internet_statusError.txt" , 0)
@@ -488,6 +471,7 @@ try:
 
 
                 # executes only once per day...
+                print("Sleeping till next day...")
                 time.sleep(10*60)
                 time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm                
 
@@ -495,23 +479,19 @@ try:
 
 except: # if anything is wrong
         print("AN ERROR OCCURED. Trying again. Loading...")
-        changeDelayOnceWrite("delay.txt", int( open("delay.txt").read() ) - 5 )
+        #write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
         __totalErrorsOfDay__W("totalErrors.txt")
+        writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
-        if( int( open("error_in_the_beginning.txt").read() ) == 0):
-            if( readNumOfErrors("let_5_errors_happen.txt") <= 5):
-                with open("error_in_the_beginning.txt") as fileError:
-                    writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
-                    writeBoolErrors(0)
-                    write_delay("delay.txt" , 5)
         
-        else:
+        if( readNumOfErrors("let_5_errors_happen.txt") == 5):
             with open("updateNumber.txt") as file:
                 today = date.today()
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_sendToOther("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-                email_sendToMe("ERROR OCCURED in 'www.car.gr'  " + str_date , "An error occured while the application was running.Trying to restart firefox...   Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-            print("Email just sent... Purpose: Error")
-            write_error("run_after_error.txt" , 1)
+                email_sendToOther("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+                email_sendToMe("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+                print("Email just sent... Purpose: Error")
+                write_error("run_after_error.txt" , 1)
+                writeNumOfErrors("let_5_errors_happen.txt" , 0)
         driver.quit()   # quit firefox
         os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
