@@ -361,10 +361,10 @@ try:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
                 
-                #error_and_back_to_internet()
-                #updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
-                #error_and_back_to_internet()
-                #updateMachine.click()       # press the "update" button
+                error_and_back_to_internet()
+                updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                error_and_back_to_internet()
+                updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -479,7 +479,7 @@ try:
 
 except: # if anything is wrong
         print("AN ERROR OCCURED. Trying again. Loading...")
-        #write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
+        write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
         __totalErrorsOfDay__W("totalErrors.txt")
         writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
