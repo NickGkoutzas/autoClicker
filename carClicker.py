@@ -134,10 +134,10 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
 
 
 
-def computeTimeSleep():
+def computeTimeSleep(hour__ , minute__ , second__):
     now = datetime.datetime.now()
     currentTime = datetime.datetime(now.year, now.month , now.day , 0 , 6 , 0)
-    startTime = datetime.datetime(now.year, now.month , now.day , 6 , 59 , 50)
+    startTime = datetime.datetime(now.year, now.month , now.day , hour__ , minute__ , second__)
     difference = abs(currentTime - startTime)
     return int(difference.total_seconds() )
 
@@ -352,11 +352,12 @@ try:
 
         if(not current_time < on_time and not current_time >= off_time):
 
-            file = open("wait.txt", "w")    # open the file
-            file.write(str(1))   # write the number in the file
-            file.flush()
-
             if( readTotalUpdates() < totalUpdateOfTheDay ):
+
+                file = open("wait.txt", "w")    # open the file
+                file.write(str(1))   # write the number in the file
+                file.flush()
+
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
@@ -391,6 +392,7 @@ try:
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
                 file.flush()    
+                
 
             if(currentPosUpdate == numOfMachines):  # if update of all machines finished
                 currentPosUpdate = 0                    # start again
@@ -406,11 +408,19 @@ try:
                 print("Emails sent... Purpose: Errors solved.")
                 print("Running normally again, due to an 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
-
-            for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection
-                time.sleep(1)
-                error_and_back_to_internet()
             
+            if( readTotalUpdates() == totalUpdateOfTheDay ):
+                print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
+                computeTimeSleep(23 , 54 , 50)
+            
+
+            elif (readTotalUpdates() < totalUpdateOfTheDay ):
+                for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection
+                    time.sleep(1)
+                    error_and_back_to_internet()
+                
+
+                
 
         elif(current_time > off_time):
             if( int( open("wait.txt" , 'r').read() ) == 1):
@@ -476,7 +486,7 @@ try:
                 print("Sleeping till next day...")
                 time.sleep(10*60)
                 print("Waiting till 06:59:50 pm ...")
-                time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm                
+                time.sleep( computeTimeSleep(6 , 59 , 50) )  # sleep till tomorrow morning at 7pm                
 
             
 
