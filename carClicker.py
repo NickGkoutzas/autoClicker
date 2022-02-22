@@ -129,14 +129,14 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = abs(finalTime - currentTime)
-    return int( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 ) - 5)  # in seconds
+    return int( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 )  # in seconds
 
 
 
 
 def computeTimeSleep():
     now = datetime.datetime.now()
-    currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
+    currentTime = datetime.datetime(now.year, now.month , now.day , 0 , 6 , 0)
     startTime = datetime.datetime(now.year, now.month , now.day , 6 , 59 , 50)
     difference = abs(currentTime - startTime)
     return int(difference.total_seconds() )
