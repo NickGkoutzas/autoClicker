@@ -1,7 +1,6 @@
 # Nick Gkoutzas , Feb 2022
 
 
-from traceback import print_tb
 from selenium import webdriver
 from datetime import datetime , time , date
 import time , datetime , os , sys , smtplib , linecache , socket
