@@ -1,6 +1,7 @@
 # Nick Gkoutzas , Feb 2022
 
 
+from traceback import print_tb
 from selenium import webdriver
 from datetime import datetime , time , date
 import time , datetime , os , sys , smtplib , linecache , socket
@@ -129,7 +130,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = abs(finalTime - currentTime)
-    return int( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 )  # in seconds
+    return int( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 ) - 5)  # in seconds
 
 
 
@@ -382,7 +383,7 @@ try:
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                         email_sendToOther("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
                         email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() )
-                        print("Email sent... Done")
+                        print("Emails sent... Purpose: Start of the new day.")
                         now = datetime.datetime.now()
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                     print("Total updates till now: " + open("totalUpdates.txt").read())
@@ -399,9 +400,11 @@ try:
                 file.flush() 
 
             if( read_error("run_after_error.txt") == 1 ):
+                now = datetime.datetime.now()
                 email_sendToOther("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 email_sendToMe("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                 write_error("run_after_error.txt" , 0)
+                print("Emails sent... Purpose: Errors solved.")
                 print("Running normally again, due to an 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
 
@@ -431,7 +434,7 @@ try:
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                     email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
                     email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
-                    print("Email just sent... Purpose: Success")
+                    print("Emails just sent... Purpose: Success")
                 
                 # reset all files for the new day    
                 
@@ -473,13 +476,15 @@ try:
                 # executes only once per day...
                 print("Sleeping till next day...")
                 time.sleep(10*60)
+                print("Waiting till 06:59:50 pm ...")
                 time.sleep( computeTimeSleep() )  # sleep till tomorrow morning at 7pm                
 
             
 
 except: # if anything is wrong
         print("AN ERROR OCCURED. Trying again. Loading...")
-        write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
+        if( int( open("delay.txt").read() ) >= 10 ):
+            write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
         __totalErrorsOfDay__W("totalErrors.txt")
         writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
@@ -490,7 +495,7 @@ except: # if anything is wrong
                 str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                 email_sendToOther("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
                 email_sendToMe("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-                print("Email just sent... Purpose: Error")
+                print("Emails just sent... Purpose: Error")
                 write_error("run_after_error.txt" , 1)
                 writeNumOfErrors("let_5_errors_happen.txt" , 0)
         driver.quit()   # quit firefox
