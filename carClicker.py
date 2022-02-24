@@ -15,6 +15,8 @@ numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 bad_internet_connection = 0
+finished_earlier = True
+
 
 on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
@@ -409,7 +411,8 @@ try:
                 print("Running normally again, due to an 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
             
-            if( readTotalUpdates() == totalUpdateOfTheDay ):
+            if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
+                finished_earlier = False
                 print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
                 computeTimeSleep(23 , 54 , 50)
             
