@@ -138,7 +138,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
 
 def computeTimeSleep(hour__ , minute__ , second__):
     now = datetime.datetime.now()
-    currentTime = datetime.datetime(now.year, now.month , now.day , 0 , 6 , 0)
+    currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     startTime = datetime.datetime(now.year, now.month , now.day , hour__ , minute__ , second__)
     difference = abs(currentTime - startTime)
     return int(difference.total_seconds() )
@@ -413,8 +413,9 @@ try:
             if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
                 finished_earlier = False
                 print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
-                computeTimeSleep(23 , 54 , 50)
-            
+                sleep__ = computeTimeSleep(23 , 55 , 0)
+                time.sleep(sleep__)
+
 
             elif (readTotalUpdates() < totalUpdateOfTheDay ):
                 for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection
