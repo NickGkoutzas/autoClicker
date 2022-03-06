@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 
 totalUpdateOfTheDay = 200
 totalUpdates = 0
-numOfMachines = 41      # number of machines
+numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 bad_internet_connection = 0
@@ -291,7 +291,7 @@ try:
 
     #======================================================================================================================================================================
 
-    # a list for all URL's of machines. Total: 41
+    # a list for all URL's of machines. Total: 42
     Machines =     [
             "https://www.car.gr/xyma/view/26033392-epaggelmatiko-plyntirio-electrolux-w3400h-45-kg-electronord-gr" ,
             "https://www.car.gr/xyma/view/23254261-epaggelmatikos-kylindros-siderwmatos-airon-gmp-1400es-zitiste-mas-prosfora-wwwelectronord-gr" ,
@@ -320,6 +320,7 @@ try:
             "https://www.car.gr/xyma/view/14772647-epaggelmatiko-plyntirio-electrolux-w-3105-h-14kg-wwwelectronordgr" ,
             "https://www.car.gr/xyma/view/14783410-soypiera-vrastiras-zitiste-mas-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/35748091-epaggelmatiko-stegnwtirio-electrolux-t-4250-17-kg-wwwelectronord-gr" ,
+            "https://www.car.gr/xyma/view/321132407-epaggelmatiko-kylindriko-siderwtirio-hewatec-zitiste-prosfora-wwwelectronord-gr" , 
             "https://www.car.gr/xyma/view/14783936-dipli-estia-thermansews-gf-2-zitiste-mas-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/14757176-epaggelmatiko-plyntirio-electrolux-fle-350-40-kg-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/14774620-viomixaniko-kylindriko-siderwtirio-dreher-380-zitiste-mas-prosfora-wwwelectronord-gr" ,
