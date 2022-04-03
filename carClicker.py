@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 
 totalUpdateOfTheDay = 200
 totalUpdates = 0
-numOfMachines = 44      # number of machines
+numOfMachines = 43      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 bad_internet_connection = 0
@@ -291,11 +291,11 @@ try:
 
     #======================================================================================================================================================================
 
-    # a list for all URL's of machines. Total: 44
+    # a list for all URL's of machines. Total: 43
     Machines =     [
             "https://www.car.gr/xyma/view/26033392-epaggelmatiko-plyntirio-electrolux-w3400h-45-kg-electronord-gr" ,
-            "https://www.car.gr/xyma/view/321558239-viomixaniko-stegnwtirio-lavatec-fl-633-zitiste-prosfora-wwwelectronord-gr?fbclid=IwAR0Dbm5bPYmsNqKKV65Po1GbnAVAu1hTfLuHG4Vm9e6QC19nHMSjsDBYW7k" ,
-            "https://www.car.gr/xyma/view/321558293-viomixaniko-stegnwtirio-70kg-trent-zitiste-prosfora-wwwelectronord-gr?fbclid=IwAR3JkgeElCcqtQM837_km53vcapkGqboXH-6hvQdP5zDGRrsIT-Oficz3wc" ,
+            "https://www.car.gr/xyma/view/321558239-viomixaniko-stegnwtirio-lavatec-fl-633-zitiste-prosfora-wwwelectronord-gr" ,
+            "https://www.car.gr/xyma/view/321558293-viomixaniko-stegnwtirio-70kg-trent-zitiste-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/23254261-epaggelmatikos-kylindros-siderwmatos-airon-gmp-1400es-zitiste-mas-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/319444580-viomixaniko-stegnwtirio-imatismoy-passat-145-kg-zitiste-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/316373940-epaggelmatiko-stegnwtirio-electrolux-t-4250-wwwelectronord-gr" ,
@@ -319,7 +319,6 @@ try:
             "https://www.car.gr/xyma/view/14783770-plato-gkazioy-1001-lm-zitiste-mas-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/18465809-diplwtiki-mixani-amko-zitiste-mas-prosfora-electronord-gr" ,
             "https://www.car.gr/xyma/view/14773137-epaggelmatiko-stegnwtirio-electrolux-t-4250-17kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14772647-epaggelmatiko-plyntirio-electrolux-w-3105-h-14kg-wwwelectronordgr" ,
             "https://www.car.gr/xyma/view/14783410-soypiera-vrastiras-zitiste-mas-prosfora-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/35748091-epaggelmatiko-stegnwtirio-electrolux-t-4250-17-kg-wwwelectronord-gr" ,
             "https://www.car.gr/xyma/view/321132407-epaggelmatiko-kylindriko-siderwtirio-hewatec-zitiste-prosfora-wwwelectronord-gr" , 
