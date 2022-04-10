@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 
 totalUpdateOfTheDay = 200
 totalUpdates = 0
-numOfMachines = 2      # number of machines
+numOfMachines = 42      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = 0    # current position of update
 bad_internet_connection = 0
