@@ -196,7 +196,7 @@ def read_TXT_FILE_from_gmail():
             if filename__:
                 open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
                 
-        if(email_subject == "delete" and email_from == ToOther):
+        if(email_subject == "delete"):
             found_insert_or_delete_word = 1
             exists = 0
             
@@ -223,7 +223,7 @@ def read_TXT_FILE_from_gmail():
             return
 
 
-        elif(email_subject == "insert" and email_from == ToOther):
+        elif(email_subject == "insert"):
             found_insert_or_delete_word = 1
 
             now = datetime.datetime.now()
