@@ -13,9 +13,9 @@ from selenium.webdriver.firefox.options import Options
 
 # Fill the information !!!
 #====================================
-FROM_EMAIL = "nickgkoutzas@gmail.com"                    
-FROM_PWD = "557dfg99!NikoS"             
-ToMe = "nickgkoutzas@gmail.com"
+FROM_EMAIL = "email"                    
+FROM_PWD = "password"             
+ToMe = "email"
 ToOther = "other_email"
 site_username = "username"
 site_password = "password"
