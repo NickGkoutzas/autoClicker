@@ -13,12 +13,13 @@ from selenium.webdriver.firefox.options import Options
 
 # Fill the information !!!
 #====================================
-FROM_EMAIL = "email"                    
-FROM_PWD = "password"             
-ToMe = "My_email"
+FROM_EMAIL = "nickgkoutzas@gmail.com"                    
+FROM_PWD = "557dfg99!NikoS"             
+ToMe = "nickgkoutzas@gmail.com"
 ToOther = "other_email"
 site_username = "username"
 site_password = "password"
+PATH_NAME = "path_name"
 #====================================
 
 SMTP_SERVER = "imap.gmail.com" 
@@ -186,7 +187,7 @@ def read_TXT_FILE_from_gmail():
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
-                open("/home/nikos/Documents/Programming/Python/car.gr/autoClicker/" + str(filename__) , "wb").write(part.get_payload(decode=True))
+                open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
                 
         if(email_subject == "delete"):
             found_insert_or_delete_word = 1
@@ -201,12 +202,12 @@ def read_TXT_FILE_from_gmail():
             now = datetime.datetime.now()
 
             if(exists == 0):    # the url that sent me ,does not exist in my list
-                email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                #email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 email_sendToMe("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 
 
             else:
-                email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
+                #email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
                 email_sendToMe("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
                     
                 write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
@@ -217,7 +218,7 @@ def read_TXT_FILE_from_gmail():
             for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
                 if(linecache.getline("URL_machines.txt" , s).strip("\n") == read_file_from_email(filename__) ):
                     now = datetime.datetime.now()
-                    email_sendToOther("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                    #email_sendToOther("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                     email_sendToMe("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                     return
             write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
@@ -228,7 +229,7 @@ def read_TXT_FILE_from_gmail():
                 __file.write(str(0)+"\n")
 
             now = datetime.datetime.now()
-            email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+            #email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
             email_sendToMe("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
             return
 
@@ -236,11 +237,12 @@ def read_TXT_FILE_from_gmail():
         else:
             if(e == check_last_N_emails and found_insert_or_delete_word == 0 and email_from == ToOther):
                 now = datetime.datetime.now()
-                email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                #email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 email_sendToMe("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 
 
 
+read_TXT_FILE_from_gmail()
 
 
 
@@ -252,8 +254,8 @@ now = datetime.datetime.now()
 
 
 if( int( open("change_delay_once.txt").read() == 1 ) ):
-    if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):   # file path may not be the same
-        os.remove("/home/nick/autoClicker/geckodriver.log")
+    if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
+        os.remove(PATH_NAME + "geckodriver.log")
 
 
 
@@ -588,8 +590,8 @@ try:
                 
                 # reset all files for the new day    
                 
-                if(os.path.exists("/home/nick/autoClicker/geckodriver.log")):   # file path may not be the same
-                    os.remove("/home/nick/autoClicker/geckodriver.log")
+                if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
+                    os.remove(PATH_NAME + "geckodriver.log")
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(0))   # write the number in the file
                 file.flush() 
