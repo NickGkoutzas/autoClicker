@@ -496,9 +496,10 @@ try:
 
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
-                    #machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
                     machine = driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
 
+                read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
+                
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
@@ -559,8 +560,7 @@ try:
                     error_and_back_to_internet()
                 
 
-            read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
-                
+            
 
         elif(current_time > off_time):
             if( int( open("wait.txt" , 'r').read() ) == 1):
@@ -638,7 +638,8 @@ try:
 
 except: # if anything is wrong
     print("AN ERROR OCCURED. Trying again. Loading...")
-    
+    read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
+                
     if( int( open("delay.txt").read() ) >= 10 ):
         write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
     __totalErrorsOfDay__W("totalErrors.txt")
