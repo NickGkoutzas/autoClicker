@@ -494,11 +494,12 @@ try:
                 file.write(str(1))   # write the number in the file
                 file.flush()
 
+                read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
+
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
                     machine = driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
 
-                read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
                 
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
