@@ -200,7 +200,6 @@ def read_TXT_FILE_from_gmail():
             found_insert_or_delete_word = 1
             exists = 0
             
-            
             for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
                 if( read_file_from_email(filename__) in open("URL_machines.txt").read() ):
                     delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
@@ -240,12 +239,6 @@ def read_TXT_FILE_from_gmail():
                 return
 
 
-        else:
-            if(e == check_last_N_emails and found_insert_or_delete_word == 0 and email_from == ToOther):
-                now = datetime.datetime.now()
-                email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-                email_sendToMe("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-                
 
 
 
