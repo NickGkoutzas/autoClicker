@@ -18,8 +18,8 @@ FROM_PWD = "password"
 ToMe = "email"
 ToOther = "other_email"
 site_username = "username"
-site_password = "password"
-PATH_NAME = "path_name"
+site_password = "passcode"
+PATH_NAME = "path"
 #====================================
 
 SMTP_SERVER = "imap.gmail.com" 
@@ -108,6 +108,9 @@ def delete_from_URL_MACHINES_FILE(file__ , URL):
 
 
 
+
+
+
 totalUpdateOfTheDay = 200
 totalUpdates = int( open("totalUpdates.txt").read() )
 numOfMachines = read_NumberOfMachines("NumberOfMachines.txt")      # number of machines
@@ -138,6 +141,10 @@ def email_sendToOther(SUBJECT , message):
     server.sendmail(FROM , TO , MESSAGE.as_string() )
     server.quit()
     return TO
+
+
+
+
 
 
 def email_sendToMe(SUBJECT , message):
@@ -189,60 +196,58 @@ def read_TXT_FILE_from_gmail():
             if filename__:
                 open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
                 
-        if(email_subject == "delete"):
+        if(email_subject == "delete" and email_from == ToOther):
             found_insert_or_delete_word = 1
             exists = 0
+            
+            
             for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                if(linecache.getline("URL_machines.txt" , s).strip("\n") == read_file_from_email(filename__) ):
+                if( read_file_from_email(filename__) in open("URL_machines.txt").read() ):
                     delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
                     delete_from_URL_MACHINES_FILE("URL_machines.txt" , read_file_from_email(filename__) )
                     exists = 1
                     break
             
+            
             now = datetime.datetime.now()
-
-            if(exists == 0):    # the url that sent me ,does not exist in my list
-                #email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+            if(exists == 0 and read_file_from_email(filename__) in open("URL_machines.txt").read() ):    # the url that sent me ,does not exist in my list
+                email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 email_sendToMe("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 
 
-            else:
-                #email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
-                email_sendToMe("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
+            elif(exists == 1):
+                email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
+                email_sendToMe("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
                     
                 write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
             return
 
-        elif(email_subject == "insert"):
-            found_insert_or_delete_word = 1
-            for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                if(linecache.getline("URL_machines.txt" , s).strip("\n") == read_file_from_email(filename__) ):
-                    now = datetime.datetime.now()
-                    #email_sendToOther("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-                    email_sendToMe("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-                    return
-            write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
-            with open("URL_machines.txt", "a") as __file__:
-                __file__.write(read_file_from_email(filename__)+"\n")
 
-            with open("MachinesEachUpdate.txt", "a") as __file:
-                __file.write(str(0)+"\n")
+        elif(email_subject == "insert" and email_from == ToOther):
+            found_insert_or_delete_word = 1
 
             now = datetime.datetime.now()
-            #email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-            email_sendToMe("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-            return
+            if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
+                write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
+                with open("URL_machines.txt", "a") as __file__:
+                    __file__.write(read_file_from_email(filename__)+"\n")
+
+                with open("MachinesEachUpdate.txt", "a") as __file:
+                    __file.write(str(0)+"\n")
+
+                email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                email_sendToMe("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                return
 
 
         else:
             if(e == check_last_N_emails and found_insert_or_delete_word == 0 and email_from == ToOther):
                 now = datetime.datetime.now()
-                #email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 email_sendToMe("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
                 
 
 
-read_TXT_FILE_from_gmail()
 
 
 
@@ -420,9 +425,6 @@ def error_and_back_to_internet():
 
 
 
-# Go to this link
-# https://www.youtube.com/redirect?v=YPiHBtddefI&redir_token=QUFFLUhqa3phOTlrSjk3RWpRNThXSHJBUDNobzRpNXlFZ3xBQ3Jtc0ttbzhFSXhmai1Mb19ORG9NYzVGa2lwcVNyWG9TYnkxWDZPd1RiQ2JPX05LTlRPQVpTeVMwN0tQWFN6SlZwWThCZFBWcmhFQTZfSlkwVzZ5NXVYaWNVRjVzYTdpT015bXY5UnVqTWFXcmpvQURIVHRBNA%3D%3D&event=video_description&q=https%3A%2F%2Fmyaccount.google.com%2Flesssecureapps%3Fpli%3D1
-# to enable 'less secure apps' 
 
 
 
@@ -623,8 +625,6 @@ try:
                 internet_err_DATE_file.write( str(0) )
                 internet_err_DATE_file.flush()
                 internet_err_DATE_file.close()
-
-                #write_select_edit("select_edit" , 0)
 
 
                 # executes only once per day...
