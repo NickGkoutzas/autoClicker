@@ -3,19 +3,245 @@
 
 from selenium import webdriver
 from datetime import datetime , time , date
-import time , datetime , os , sys , smtplib , linecache , socket
+import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email , traceback
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
 
 
+
+
+# Fill the information !!!
+#====================================
+FROM_EMAIL = "email"                    
+FROM_PWD = "password"             
+ToMe = "My_email"
+ToOther = "other_email"
+site_username = "username"
+site_password = "password"
+#====================================
+
+SMTP_SERVER = "imap.gmail.com" 
+SMTP_PORT = 993
+
+
+
+
+
+def read_NumberOfMachines(file_name):
+    numOfMach = open(file_name , 'r')
+    numberOfMachines__ = numOfMach.read()
+    numOfMach.close()
+    return int(numberOfMachines__)
+
+
+
+
+
+
+
+def read_file_from_email(file_name):
+    __file = open(file_name , 'r')
+    link = __file.read().strip("\n")
+    __file.close()
+    return str(link)
+
+
+
+
+
+
+def write_EDIT__file_NumberOfMachines(file_name , number):     # File: NumberOfMachines.txt
+    delay = open(file_name , 'w')
+    delay.write( str(number) )
+    delay.flush()
+    delay.close()
+
+
+
+
+
+
+
+def replace_line(file_name , line_num , text):
+    lines = open(file_name, 'r').readlines()
+    lines[line_num] = str(text[line_num]) + "\n"
+    out = open(file_name, 'w')
+    out.writelines(lines)
+    out.flush()
+    out.close()
+
+
+
+
+
+
+def delete_line(file_name , line_num , text):
+    lines = open(file_name, 'r').readlines()
+    lines[line_num] = ""
+    out = open(file_name, 'w')
+    out.writelines(lines)
+    out.flush()
+    out.close()
+
+
+
+
+
+
+def read_URL_machines_FILE(file__ , which_line):
+    URL_machine = linecache.getline(file__ , which_line).strip("\n")
+    return str(URL_machine)
+
+
+
+
+
+def delete_from_URL_MACHINES_FILE(file__ , URL):
+    for i in range( read_NumberOfMachines("NumberOfMachines.txt") ):
+        URL_machine = linecache.getline(file__ , i+1).strip("\n")
+        if(URL == URL_machine):
+            delete_line("URL_machines.txt" , i , "")
+            break
+
+
+
+
 totalUpdateOfTheDay = 200
-totalUpdates = 0
-numOfMachines = 42      # number of machines
+totalUpdates = int( open("totalUpdates.txt").read() )
+numOfMachines = read_NumberOfMachines("NumberOfMachines.txt")      # number of machines
 machinesEachUpdate = [int] * numOfMachines
-currentPosUpdate = 0    # current position of update
+currentPosUpdate = int( open("updateNumber.txt").read() )    # current position of update
 bad_internet_connection = 0
 finished_earlier = True
+
+
+
+
+
+def email_sendToOther(SUBJECT , message):
+    global FROM_EMAIL , FROM_PWD , ToOther
+    FROM = FROM_EMAIL
+    TO = ToOther
+
+    MESSAGE = MIMEMultipart('alternative')
+    MESSAGE['subject'] = SUBJECT
+    MESSAGE['To'] = TO
+    MESSAGE['From'] = FROM
+    HTML_BODY = MIMEText(message, 'html')
+    MESSAGE.attach(HTML_BODY)
+    server = smtplib.SMTP("smtp.gmail.com:587")    
+    password = FROM_PWD
+    server.starttls()
+    server.login(FROM,password)
+    server.sendmail(FROM , TO , MESSAGE.as_string() )
+    server.quit()
+    return TO
+
+
+def email_sendToMe(SUBJECT , message):
+    global FROM_EMAIL , FROM_PWD , ToMe
+    FROM = FROM_EMAIL
+    TO = ToMe
+
+    MESSAGE = MIMEMultipart('alternative')
+    MESSAGE['subject'] = SUBJECT
+    MESSAGE['To'] = TO
+    MESSAGE['From'] = FROM
+    HTML_BODY = MIMEText(message, 'html')
+    MESSAGE.attach(HTML_BODY)
+    server = smtplib.SMTP("smtp.gmail.com:587")    
+    password = FROM_PWD
+    server.starttls()
+    server.login(FROM,password)
+    server.sendmail(FROM , TO , MESSAGE.as_string() )
+    server.quit()
+    return TO
+
+
+
+
+def read_TXT_FILE_from_gmail():
+    global ToOther
+
+    found_insert_or_delete_word = 0
+    mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+    mail.login(FROM_EMAIL,FROM_PWD)
+    mail.select('inbox')
+
+    data = mail.search(None, 'ALL')
+    mail_ids = data[1]
+    id_list = mail_ids[0].split()   
+    latest_email_id = int(id_list[-1])
+    check_last_N_emails = 5
+    for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
+        data = mail.fetch(str(e), '(RFC822)' )
+        for response_part in data:
+            arr = response_part[0]
+            if isinstance(arr, tuple):
+                msg = email.message_from_string(str(arr[1],'utf-8'))
+                email_subject = msg['subject']
+                email_from = msg['from']
+
+        for part in msg.walk():
+            filename__ = part.get_filename()
+            if filename__:
+                open("/home/nikos/Documents/Programming/Python/car.gr/autoClicker/" + str(filename__) , "wb").write(part.get_payload(decode=True))
+                
+        if(email_subject == "delete"):
+            found_insert_or_delete_word = 1
+            exists = 0
+            for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                if(linecache.getline("URL_machines.txt" , s).strip("\n") == read_file_from_email(filename__) ):
+                    delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
+                    delete_from_URL_MACHINES_FILE("URL_machines.txt" , read_file_from_email(filename__) )
+                    exists = 1
+                    break
+            
+            now = datetime.datetime.now()
+
+            if(exists == 0):    # the url that sent me ,does not exist in my list
+                email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                email_sendToMe("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                
+
+            else:
+                email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
+                email_sendToMe("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it.")
+                    
+                write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
+            return
+
+        elif(email_subject == "insert"):
+            found_insert_or_delete_word = 1
+            for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                if(linecache.getline("URL_machines.txt" , s).strip("\n") == read_file_from_email(filename__) ):
+                    now = datetime.datetime.now()
+                    email_sendToOther("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                    email_sendToMe("Warning in 'www.car.gr': A machine already exists " , read_file_from_email(filename__) +  " already exists in the list.<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                    return
+            write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
+            with open("URL_machines.txt", "a") as __file__:
+                __file__.write(read_file_from_email(filename__)+"\n")
+
+            with open("MachinesEachUpdate.txt", "a") as __file:
+                __file.write(str(0)+"\n")
+
+            now = datetime.datetime.now()
+            email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+            email_sendToMe("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted succesfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+            return
+
+
+        else:
+            if(e == check_last_N_emails and found_insert_or_delete_word == 0 and email_from == ToOther):
+                now = datetime.datetime.now()
+                email_sendToOther("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                email_sendToMe("Problem in 'www.car.gr': Specify what you want to do: 'delete' or 'insert'" , "Subject of email does not contain nor the word 'delete' neither 'insert' word ,but '" + str(email_subject) + "' given instead.Please, try again...<br>Time: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+                
+
+
+
 
 
 on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
@@ -42,7 +268,7 @@ def __internetStatusError__Read(file_name): # '0' at start   , '1' if internet c
 
 
 def __internetStatusError__Write(file_name , status): # '1' if an error occured , else '0' -> normal
-    delay = open("internet_statusError.txt" , 'w')
+    delay = open(file_name , 'w')
     delay.write( str(status) )
     delay.flush()
     delay.close()
@@ -57,47 +283,6 @@ def check_internet_connection():
     except OSError:
         pass
     return False
-
-
-
-def email_sendToOther(SUBJECT , message):
-    FROM = "FROM"
-    TO = "TO-1"
-
-    MESSAGE = MIMEMultipart('alternative')
-    MESSAGE['subject'] = SUBJECT
-    MESSAGE['To'] = TO
-    MESSAGE['From'] = FROM
-    HTML_BODY = MIMEText(message, 'html')
-    MESSAGE.attach(HTML_BODY)
-    server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcode"
-    server.starttls()
-    server.login(FROM,password)
-    server.sendmail(FROM , TO , MESSAGE.as_string() )
-    server.quit()
-    return TO
-
-
-def email_sendToMe(SUBJECT , message):
-    FROM = "FROM"
-    TO = "TO-2"
-
-    MESSAGE = MIMEMultipart('alternative')
-    MESSAGE['subject'] = SUBJECT
-    MESSAGE['To'] = TO
-    MESSAGE['From'] = FROM
-    HTML_BODY = MIMEText(message, 'html')
-    MESSAGE.attach(HTML_BODY)
-    server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = "passcode"
-    server.starttls()
-    server.login(FROM,password)
-    server.sendmail(FROM , TO , MESSAGE.as_string() )
-    server.quit()
-    return TO
-
-
 
 
 
@@ -167,13 +352,7 @@ def read_error(file_name):
 
 
 
-def replace_line(file_name , line_num , text):
-    lines = open(file_name, 'r').readlines()
-    lines[line_num] = str(text[line_num]) + "\n"
-    out = open(file_name, 'w')
-    out.writelines(lines)
-    out.flush()
-    out.close()
+
 
 
 
@@ -269,10 +448,10 @@ try:
     driver.get("https://www.car.gr/login/")
     error_and_back_to_internet()
 
-    username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys("username")    # give username
+    username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys(site_username)    # give username
     error_and_back_to_internet()
 
-    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys("password")     # give password
+    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys(site_password)     # give password
     time.sleep(1)
     error_and_back_to_internet()
     
@@ -291,56 +470,11 @@ try:
 
     #======================================================================================================================================================================
 
-    # a list for all URL's of machines. Total: 42
-    Machines =     [
-            "https://www.car.gr/xyma/view/26033392-epaggelmatiko-plyntirio-electrolux-w3400h-45-kg-electronord-gr" ,
-            "https://www.car.gr/xyma/view/321558239-viomixaniko-stegnwtirio-lavatec-fl-633-zitiste-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/23254261-epaggelmatikos-kylindros-siderwmatos-airon-gmp-1400es-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/319444580-viomixaniko-stegnwtirio-imatismoy-passat-145-kg-zitiste-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/316373940-epaggelmatiko-stegnwtirio-electrolux-t-4250-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14783340-vrastiras-kafe-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/29972104-epaggelmatiko-plyntirio-electrolux-w-120-mp-16-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14783918-psyktis-xymwn-usm-40-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/34778934-epaggelmatiko-plyntirio-electrolux-w-4180-h-21-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14774559-kylindriko-siderwtirio-gmp-120-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/24188596-viomixanika-stegnwtiria-royxwn-passat-wwwelectronordgr" , 
-            "https://www.car.gr/xyma/view/14783852-plato-ilektriko-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14772758-epaggelmatiko-plyntirio-electrolux-w-3130-h-18kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14783805-frapiera-tvs-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/18465617-diplwtiki-mixani-jean-michel-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14773144-epaggelmatiko-stegnwtirio-podab-huebsch-17kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/29609265-epaggelmatiko-plyntirio-electrolux-w4130h-17kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/18465177-epaggelmatiko-stegnwtirio-electrolux-t-5250-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14783647-tostiera-dipli-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14757302-epaggelmatiko-plyntirio-electrolux-w-365-h-95kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14778226-pagomixani-c-250-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/319160527-epaggelmatiko-stegnwtirio-electrolux-t-4350-20-kg-electronord-gr" ,
-            "https://www.car.gr/xyma/view/14783770-plato-gkazioy-1001-lm-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/18465809-diplwtiki-mixani-amko-zitiste-mas-prosfora-electronord-gr" ,
-            "https://www.car.gr/xyma/view/14773137-epaggelmatiko-stegnwtirio-electrolux-t-4250-17kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14783410-soypiera-vrastiras-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/35748091-epaggelmatiko-stegnwtirio-electrolux-t-4250-17-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/321132407-epaggelmatiko-kylindriko-siderwtirio-hewatec-zitiste-prosfora-wwwelectronord-gr" , 
-            "https://www.car.gr/xyma/view/14783936-dipli-estia-thermansews-gf-2-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14757176-epaggelmatiko-plyntirio-electrolux-fle-350-40-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14774620-viomixaniko-kylindriko-siderwtirio-dreher-380-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14783835-gyros-gkazioy-4pg-t-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/319160971-epaggelmatiko-stegnwtirio-electrolux-t-4250-17-kg-electronord-gr" ,
-            "https://www.car.gr/xyma/view/14748000-epaggelmatiko-plyntirio-electrolux-fle-120-fc-17kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14783678-vafliera-viron-2-dipli-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14757111-epaggelmatiko-plyntirio-electrolux-fle-403-mp-50-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14783609-tostiera-ravdwti-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14773072-epaggelmatiko-stegnwtirio-electrolux-200-t-12kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14783556-tostiera-dipli-ravdwti-zitiste-mas-prosfora-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14772787-viomixanika-plyntiria-electrolux-fle-810-90-kg-wwwelectronord-gr" ,
-            "https://www.car.gr/xyma/view/14773094-epaggelmatiko-stegnwtirio-electrolux-tt-200-12kg-wwwelectronordgr" ,
-            "https://www.car.gr/xyma/view/14783584-tostiera-epaggelmatiki-moni-zitiste-mas-prosfora-wwwelectronord-gr"
-    ]
-
+    
 
 
     with open("MachinesEachUpdate.txt") as fileEach:
-        for i in range(0 , numOfMachines):
+        for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt") ):
             machinesEachUpdate[i] = int(fileEach.readline())
             line = linecache.getline("MachinesEachUpdate.txt" , i+1)
     line = linecache.getline("MachinesEachUpdate.txt" , 0)
@@ -349,7 +483,7 @@ try:
 
 
     # main loop
-    while(True):    # for ever
+    while(True):    
         current_time = datetime.datetime.now().time()   # get current time
 
         if(not current_time < on_time and not current_time >= off_time):
@@ -362,8 +496,9 @@ try:
 
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
-                    machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
-                
+                    #machine = driver.get( Machines[currentPosUpdate] )  # go to machine's link
+                    machine = driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
+
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
@@ -396,7 +531,7 @@ try:
                 file.flush()    
                 
 
-            if(currentPosUpdate == numOfMachines):  # if update of all machines finished
+            if(currentPosUpdate == read_NumberOfMachines("NumberOfMachines.txt")):  # if update of all machines finished
                 currentPosUpdate = 0                    # start again
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
@@ -424,6 +559,7 @@ try:
                     error_and_back_to_internet()
                 
 
+            read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
                 
 
         elif(current_time > off_time):
@@ -438,15 +574,15 @@ try:
                 with open("totalUpdates.txt") as fileTotal , open("MachinesEachUpdate.txt") as fileEach:
                     for line in fileEach.readlines():
                         if(k + 1 < 10):
-                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>"  
+                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>"  
                         else:
-                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + Machines[k] + "<br>" 
+                            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>" 
                         k += 1
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
-                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Τotal errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
+                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
+                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number)
                     print("Emails just sent... Purpose: Success")
                 
                 # reset all files for the new day    
@@ -464,7 +600,7 @@ try:
                 fileTotal.close()
 
                 fileEach = open("MachinesEachUpdate.txt" , "w")
-                for i in range(0 , numOfMachines):
+                for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt")):
                     fileEach.write(str(0) + "\n")
                 fileEach.close()
 
@@ -485,6 +621,8 @@ try:
                 internet_err_DATE_file.flush()
                 internet_err_DATE_file.close()
 
+                #write_select_edit("select_edit" , 0)
+
 
                 # executes only once per day...
                 print("Sleeping till next day...")
@@ -497,22 +635,24 @@ try:
             
 
 
-except: # if anything is wrong
-        print("AN ERROR OCCURED. Trying again. Loading...")
-        if( int( open("delay.txt").read() ) >= 10 ):
-            write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
-        __totalErrorsOfDay__W("totalErrors.txt")
-        writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
-        
-        if( readNumOfErrors("let_5_errors_happen.txt") == 5):
-            with open("updateNumber.txt") as file:
-                today = date.today()
-                str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                email_sendToOther("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-                email_sendToMe("5 ERRORS OCCURED in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart firefox...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
-                print("Emails just sent... Purpose: Error")
-                write_error("run_after_error.txt" , 1)
-                writeNumOfErrors("let_5_errors_happen.txt" , 0)
-        driver.quit()   # quit firefox
-        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+except: # if anything is wrong
+    print("AN ERROR OCCURED. Trying again. Loading...")
+    
+    if( int( open("delay.txt").read() ) >= 10 ):
+        write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
+    __totalErrorsOfDay__W("totalErrors.txt")
+    writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
+
+    
+    if( readNumOfErrors("let_5_errors_happen.txt") == 5):
+        with open("updateNumber.txt") as file:
+            today = date.today()
+            str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
+            email_sendToOther("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+            email_sendToMe("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>Note: If this e-mail reappears, check the raspberry pi, otherwise the problem will have already been solved.")
+            print("Emails just sent... Purpose: Error")
+            write_error("run_after_error.txt" , 1)
+            writeNumOfErrors("let_5_errors_happen.txt" , 0)
+    driver.quit()   # quit firefox
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
