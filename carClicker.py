@@ -501,7 +501,7 @@ try:
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
-                #updateMachine.click()       # press the "update" button
+                updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -548,7 +548,7 @@ try:
             if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
                 finished_earlier = False
                 print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
-                sleep__ = 5#computeTimeSleep(23 , 55 , 0)
+                sleep__ = computeTimeSleep(23 , 55 , 0)
                 time.sleep(sleep__)
 
 
