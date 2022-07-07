@@ -1,5 +1,6 @@
-# Nick Gkoutzas , Feb 2022
-#                 Last update: Jul 7 2022
+# Nick Gkoutzas - Feb 2022 --------------
+# --------------- Last update: Jul 7 2022
+#----------------------------------------
 
 from selenium import webdriver
 from datetime import datetime , time , date
@@ -10,7 +11,8 @@ from selenium.webdriver.firefox.options import Options
 
 
 
-# when power (electricity) is restored -> I have to reset change_delay_once.txt file to '1', in order to run the computeDelay() function again.
+# *** when power (electricity) is restored -> I have to reset change_delay_once.txt file to '1', in order to run the computeDelay() function again.
+
 # Fill the information !!!
 #====================================
 FROM_EMAIL = "SENDER"                    
@@ -123,10 +125,10 @@ finished_earlier = True
 
 
 
-def email_sendToOther(SUBJECT , message):
+def send_email(SUBJECT , message , send_to):
     global FROM_EMAIL , FROM_PWD , ToOther
     FROM = FROM_EMAIL
-    TO = ToOther
+    TO = send_to
 
     MESSAGE = MIMEMultipart('alternative')
     MESSAGE['subject'] = SUBJECT
@@ -143,28 +145,6 @@ def email_sendToOther(SUBJECT , message):
     return TO
 
 
-
-
-
-
-def email_sendToMe(SUBJECT , message):
-    global FROM_EMAIL , FROM_PWD , ToMe
-    FROM = FROM_EMAIL
-    TO = ToMe
-
-    MESSAGE = MIMEMultipart('alternative')
-    MESSAGE['subject'] = SUBJECT
-    MESSAGE['To'] = TO
-    MESSAGE['From'] = FROM
-    HTML_BODY = MIMEText(message, 'html')
-    MESSAGE.attach(HTML_BODY)
-    server = smtplib.SMTP("smtp.gmail.com:587")    
-    password = FROM_PWD
-    server.starttls()
-    server.login(FROM,password)
-    server.sendmail(FROM , TO , MESSAGE.as_string() )
-    server.quit()
-    return TO
 
 
 
@@ -210,13 +190,13 @@ def read_TXT_FILE_from_gmail():
             
             now = datetime.datetime.now()
             if(exists == 0 and read_file_from_email(filename__) in open("URL_machines.txt").read() ):    # the url that sent me ,does not exist in my list
-                email_sendToOther("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-                email_sendToMe("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
+                send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 pass
 
             elif(exists == 1):
-                email_sendToOther("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-                email_sendToMe("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
+                send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                     
                 write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
             return
@@ -234,8 +214,8 @@ def read_TXT_FILE_from_gmail():
                 with open("MachinesEachUpdate.txt", "a") as __file:
                     __file.write(str(0)+"\n")
 
-                email_sendToOther("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-                email_sendToMe("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python")
+                send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 return
 
 
@@ -394,7 +374,7 @@ def readTotalUpdates():
 
 def error_and_back_to_internet():
     if( not check_internet_connection() ):
-        print("Disconnected from the network...")
+        print("Disconnected from the network ... Please wait")
         __totalErrorsOfDay__W("totalErrors.txt")
         
         __internetStatusError__Write("internet_statusError.txt" , 1)
@@ -407,12 +387,12 @@ def error_and_back_to_internet():
         while( not check_internet_connection() or __internetStatusError__Read("internet_statusError.txt") ):
             time.sleep(1)
             if( check_internet_connection() ):
-                print("Connected again...")
+                print("Connection restored. Connected... Done")
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
                 __internetStatusError__Write("internet_statusError.txt" , 0)
                 now = datetime.datetime.now()
-                email_sendToOther("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-                email_sendToMe("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>The problem solved at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 print("Sent email due to network disconnection... > " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
 
 
@@ -517,7 +497,7 @@ try:
                     if( int(fileTotal_R.read()) == 1 ):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        email_sendToOther("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                          "<br><br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK), follow the steps below:<br><br><br> \
                                          * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
@@ -528,8 +508,8 @@ try:
                                                      "     with subject: 'delete'" + "<br>" + "&nbsp;" * 5 + \
                                                      "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
                                         "Remember to add" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python")
-                        email_sendToMe("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                                         + "Written in Python" , ToMe)
+                        send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                          "<br><br><br>Note:<br>If you want to insert or delete a new machine<br>(URL-LINK), follow the steps below:<br><br><br> \
                                          * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
@@ -540,11 +520,12 @@ try:
                                                      "     with subject: 'delete'" + "<br>" + "&nbsp;" * 5 + \
                                                      "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
                                         "Remember to add" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python")
-                        print("Emails sent... Purpose: Start of the new day.")
+                                         + "Written in Python" , ToOther)
+                        print("Emails sent... Purpose: New day, new updates.")
                         now = datetime.datetime.now()
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
-                    print("Total updates till now: " + open("totalUpdates.txt").read())
+                    now = datetime.datetime.now()
+                    print("Total updates till now, (" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "): " + open("totalUpdates.txt").read())
                  
                 currentPosUpdate += 1       # increase current position of machine update
                 with open("updateNumber.txt" , 'w') as file:
@@ -560,11 +541,11 @@ try:
 
             if( read_error("run_after_error.txt") == 1 ):
                 now = datetime.datetime.now()
-                email_sendToOther("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-                email_sendToMe("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 write_error("run_after_error.txt" , 0)
-                print("Emails sent... Purpose: Errors solved.")
-                print("Running normally again, due to an 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Emails sent... Purpose: Unrecognized errors solved.")
+                print("Running normally again, due to 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
             
             if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
@@ -601,11 +582,11 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    email_sendToOther("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python")
-                    email_sendToMe("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python")
-                    print("Emails just sent... Purpose: Success")
+                    send_email("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                                         + "Written in Python" , ToMe)
+                    send_email("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                                         + "Written in Python" , ToOther)
+                    print("Emails just sent... Purpose: " + str(open("totalUpdates.txt").read()) + " updates were performed successfully.")
                 
                 # reset all files for the new day    
                 
@@ -670,9 +651,9 @@ except: # if anything is wrong
         with open("updateNumber.txt") as file:
             today = date.today()
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-            email_sendToOther("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-            email_sendToMe("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python")
-            print("Emails just sent... Purpose: Error")
+            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+            print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_5_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
