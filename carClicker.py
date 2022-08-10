@@ -15,13 +15,13 @@ from selenium.webdriver.firefox.options import Options
 
 # Fill the information !!!
 #====================================
-FROM_EMAIL = "SENDER"                    
-FROM_PWD = "APP PASSCODE !!!"   # app password           
-ToMe = "RECEIVER #1"
-ToOther = "RECEIVER #2"
-site_username = "USERNAME"
-site_password = "PASSWORD"
-PATH_NAME = "PATH"
+FROM_EMAIL = "-"                    
+FROM_PWD = "-"   # app password           
+ToMe = "-"
+ToOther = "-"
+site_username = "-"
+site_password = "-"
+PATH_NAME = "-"
 #====================================
 
 SMTP_SERVER = "imap.gmail.com" 
@@ -45,7 +45,7 @@ def read_NumberOfMachines(file_name):
 
 def read_file_from_email(file_name):
     __file = open(file_name , 'r')
-    link = __file.read().strip("\n")
+    link = __file.readline()#.strip("\n")
     __file.close()
     return str(link)
 
@@ -150,18 +150,17 @@ def send_email(SUBJECT , message , send_to):
 
 
 def read_TXT_FILE_from_gmail():
-    global ToOther
 
     found_insert_or_delete_word = 0
     mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-    mail.login(FROM_EMAIL,FROM_PWD)
+    mail.login(FROM_EMAIL , FROM_PWD)
     mail.select('inbox')
-
+    
     data = mail.search(None, 'ALL')
     mail_ids = data[1]
     id_list = mail_ids[0].split()   
     latest_email_id = int(id_list[-1])
-    check_last_N_emails = 5
+    check_last_N_emails = 6
     for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
         data = mail.fetch(str(e), '(RFC822)' )
         for response_part in data:
@@ -170,53 +169,54 @@ def read_TXT_FILE_from_gmail():
                 msg = email.message_from_string(str(arr[1],'utf-8'))
                 email_subject = msg['subject']
                 email_from = msg['from']
-
+                
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
                 open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
+               
+        if(not "20 errors occured" in email_subject):
+            if(email_subject == "delete"):
+                found_insert_or_delete_word = 1
+                exists = 0
                 
-        if(email_subject == "delete"):
-            found_insert_or_delete_word = 1
-            exists = 0
-            
-            for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                if( read_file_from_email(filename__) in open("URL_machines.txt").read() ):
-                    delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
-                    delete_from_URL_MACHINES_FILE("URL_machines.txt" , read_file_from_email(filename__) )
-                    exists = 1
-                    break
-            
-            
-            now = datetime.datetime.now()
-            if(exists == 0 and read_file_from_email(filename__) in open("URL_machines.txt").read() ):    # the url that sent me ,does not exist in my list
-                send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) +  " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-                pass
+                for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                    if( read_file_from_email(filename__) in open("URL_machines.txt").read() ):
+                        delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
+                        delete_from_URL_MACHINES_FILE("URL_machines.txt" , read_file_from_email(filename__) )
+                        exists = 1
+                        break
+                
+                
+                now = datetime.datetime.now()
+                if(exists == 0 and read_file_from_email(filename__) in open("URL_machines.txt").read() ):    # the url that sent me ,does not exist in my list
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) + " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) + " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                    pass
 
-            elif(exists == 1):
-                send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) +  " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-                    
-                write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
-            return
-
-
-        elif(email_subject == "insert"):
-            found_insert_or_delete_word = 1
-
-            now = datetime.datetime.now()
-            if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
-                write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
-                with open("URL_machines.txt", "a") as __file__:
-                    __file__.write(read_file_from_email(filename__)+"\n")
-
-                with open("MachinesEachUpdate.txt", "a") as __file:
-                    __file.write(str(0)+"\n")
-
-                send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) +  " inserted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                elif(exists == 1):
+                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) + " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) + " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                        
+                    write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
                 return
+
+
+            elif(email_subject == "insert"):
+                found_insert_or_delete_word = 1
+
+                now = datetime.datetime.now()
+                if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
+                    write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
+                    with open("URL_machines.txt", "a") as __file__:
+                        __file__.write(read_file_from_email(filename__) + "\n")
+
+                    with open("MachinesEachUpdate.txt", "a") as __file:
+                        __file.write(str(0) + "\n")
+
+                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) + " inserted successfully.<br>List of all machines updated at " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) + " inserted successfully.<br>List of all machines updated at " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                    return
 
 
 
@@ -641,8 +641,6 @@ except: # if anything is wrong
     print("AN ERROR OCCURED. Trying again. Loading...")
     read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
                 
-    if( int( open("delay.txt").read() ) >= 10 ):
-        write_delay("delay.txt" , int( open("delay.txt").read() ) - 5 )
     __totalErrorsOfDay__W("totalErrors.txt")
     writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
@@ -658,3 +656,6 @@ except: # if anything is wrong
             writeNumOfErrors("let_5_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
+
+
