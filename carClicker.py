@@ -126,7 +126,7 @@ finished_earlier = True
 
 
 def send_email(SUBJECT , message , send_to):
-    global FROM_EMAIL , FROM_PWD , ToOther
+    global FROM_EMAIL , FROM_PWD
     FROM = FROM_EMAIL
     TO = send_to
 
@@ -150,8 +150,7 @@ def send_email(SUBJECT , message , send_to):
 
 
 def read_TXT_FILE_from_gmail():
-
-    found_insert_or_delete_word = 0
+    global FROM_EMAIL , FROM_PWD
     mail = imaplib.IMAP4_SSL(SMTP_SERVER)
     mail.login(FROM_EMAIL , FROM_PWD)
     mail.select('inbox')
@@ -160,7 +159,7 @@ def read_TXT_FILE_from_gmail():
     mail_ids = data[1]
     id_list = mail_ids[0].split()   
     latest_email_id = int(id_list[-1])
-    check_last_N_emails = 6
+    check_last_N_emails = 11
     for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
         data = mail.fetch(str(e), '(RFC822)' )
         for response_part in data:
@@ -169,7 +168,7 @@ def read_TXT_FILE_from_gmail():
                 msg = email.message_from_string(str(arr[1],'utf-8'))
                 email_subject = msg['subject']
                 email_from = msg['from']
-                
+
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
@@ -177,7 +176,6 @@ def read_TXT_FILE_from_gmail():
                
         if(not "20 errors occured" in email_subject):
             if(email_subject == "delete"):
-                found_insert_or_delete_word = 1
                 exists = 0
                 
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
@@ -203,7 +201,6 @@ def read_TXT_FILE_from_gmail():
 
 
             elif(email_subject == "insert"):
-                found_insert_or_delete_word = 1
 
                 now = datetime.datetime.now()
                 if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
@@ -467,11 +464,8 @@ try:
 
             if( readTotalUpdates() < totalUpdateOfTheDay ):
 
-                file = open("wait.txt", "w")    # open the file
-                file.write(str(1))   # write the number in the file
-                file.flush()
-
                 read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
+                write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
 
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
@@ -545,7 +539,7 @@ try:
                 send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 write_error("run_after_error.txt" , 0)
                 print("Emails sent... Purpose: Unrecognized errors solved.")
-                print("Running normally again, due to 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
             
             if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
@@ -564,11 +558,6 @@ try:
             
 
         elif(current_time > off_time):
-            if( int( open("wait.txt" , 'r').read() ) == 1):
-                file = open("wait.txt", "w")    # open the file
-                file.write(str(0))   # write the number in the file
-                file.flush()
-
                 all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
                 line = linecache.getline("MachinesEachUpdate.txt" , 0)
                 k = 0
@@ -609,7 +598,7 @@ try:
 
 
                 changeDelayOnceWrite("change_delay_once.txt" , 1)
-                writeNumOfErrors("let_5_errors_happen.txt" , 0)
+                writeNumOfErrors("let_20_errors_happen.txt" , 0)
                 write_delay("delay.txt" , 5)
                 write_error("run_after_error.txt" , 0)
                 __internetStatusError__Write("internet_statusError.txt" , 0)
@@ -640,20 +629,21 @@ try:
 except: # if anything is wrong
     print("AN ERROR OCCURED. Trying again. Loading...")
     read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
-                
+    write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
+
     __totalErrorsOfDay__W("totalErrors.txt")
-    writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
+    writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
 
     
-    if( readNumOfErrors("let_5_errors_happen.txt") == 5):
+    if( readNumOfErrors("let_20_errors_happen.txt") == 20):
         with open("updateNumber.txt") as file:
             today = date.today()
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
-            writeNumOfErrors("let_5_errors_happen.txt" , 0)
+            writeNumOfErrors("let_20_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
 

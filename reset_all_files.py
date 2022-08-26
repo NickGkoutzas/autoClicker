@@ -51,7 +51,7 @@ fileEach.close()
 
 
 changeDelayOnceWrite("change_delay_once.txt" , 1)
-writeNumOfErrors("let_5_errors_happen.txt" , 0)
+writeNumOfErrors("let_20_errors_happen.txt" , 0)
 write_delay("delay.txt" , 5)
 write_error("run_after_error.txt" , 0)
 __internetStatusError__Write("internet_statusError.txt" , 0)
