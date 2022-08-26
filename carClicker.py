@@ -163,8 +163,8 @@ send_email("'CarClicker app terminated' error corrected", "'CarClicker app termi
 
 if( int( open("app_terminated.txt").read() ) == 1):
     print("All files reset...")
-    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected.<br>" , ToMe)
-    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected.<br>" , ToOther)
+    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
     writeAppTerminated("app_terminated.txt" , 0)
     os.system("python3 " + PATH_NAME + "/reset_all_files.py")
 else:
@@ -615,8 +615,8 @@ try:
                 try:
                     os.system("python3 " + PATH_NAME + "/carClicker.py") # run again from the top
                 except:
-                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." , ToMe)
-                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." , ToOther)
+                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
 
 
 
@@ -644,8 +644,8 @@ except: # if anything is wrong
     except:
         writeAppTerminated("app_terminated.txt" , 1)
         print("CarClicker app terminated unexpectedly")
-        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." , ToMe)
-        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." , ToOther)
+        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
 
 
 
