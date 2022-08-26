@@ -10,13 +10,6 @@ def writeNumOfErrors(file_name , number):
     write_err.flush()
     write_err.close()
 
-
-def writeAppTerminated(file_name , number):
-    appTerminated_ = open(file_name , 'w')
-    appTerminated_.write( str(number) )
-    appTerminated_.flush()
-    appTerminated_.close()
-
 def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must be '5'... -. 'delay.txt'
     delay = open(file_name , 'w')
     delay.write( str(writeDelay) )
@@ -58,11 +51,10 @@ fileEach.close()
 
 
 changeDelayOnceWrite("change_delay_once.txt" , 1)
-writeNumOfErrors("let_20_errors_happen.txt" , 0)
+writeNumOfErrors("let_5_errors_happen.txt" , 0)
 write_delay("delay.txt" , 5)
 write_error("run_after_error.txt" , 0)
 __internetStatusError__Write("internet_statusError.txt" , 0)
-writeAppTerminated("app_terminated.txt" , 0)
 
 errors__ = open("totalErrors.txt" , 'w')
 errors__.write( str(0) )

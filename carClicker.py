@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 --------------
-# --------------- Last update: Aug 26 2022
+# --------------- Last update: Aug 10 2022
 #----------------------------------------
 
 from selenium import webdriver
@@ -11,15 +11,17 @@ from selenium.webdriver.firefox.options import Options
 
 
 
+# *** when power (electricity) is restored -> I have to reset change_delay_once.txt file to '1', in order to run the computeDelay() function again.
+
 # Fill the information !!!
 #====================================
-FROM_EMAIL = "Fill"                    
-FROM_PWD = "Fill"   # app password           
-ToMe = "Fill"
-ToOther = "Fill"
-site_username = "Fill"
-site_password = "Fill"
-PATH_NAME = "Fill"
+FROM_EMAIL = "-"                    
+FROM_PWD = "-"   # app password           
+ToMe = "-"
+ToOther = "-"
+site_username = "-"
+site_password = "-"
+PATH_NAME = "-"
 #====================================
 
 SMTP_SERVER = "imap.gmail.com" 
@@ -43,7 +45,7 @@ def read_NumberOfMachines(file_name):
 
 def read_file_from_email(file_name):
     __file = open(file_name , 'r')
-    link = __file.readline()
+    link = __file.readline()#.strip("\n")
     __file.close()
     return str(link)
 
@@ -88,15 +90,6 @@ def delete_line(file_name , line_num , text):
 
 
 
-def writeAppTerminated(file_name , number):
-    appTerminated_ = open(file_name , 'w')
-    appTerminated_.write( str(number) )
-    appTerminated_.flush()
-    appTerminated_.close()
-
-
-
-
 
 
 def read_URL_machines_FILE(file__ , which_line):
@@ -117,11 +110,6 @@ def delete_from_URL_MACHINES_FILE(file__ , URL):
 
 
 
-def changeDelayOnceWrite(file_name , number): # in the beginning 'number' must be '1'... -> 'change_delay_once.txt'
-    once = open(file_name , 'w')
-    once.write( str(number) )
-    once.flush()
-    once.close()
 
 
 
@@ -138,7 +126,7 @@ finished_earlier = True
 
 
 def send_email(SUBJECT , message , send_to):
-    global FROM_EMAIL , FROM_PWD
+    global FROM_EMAIL , FROM_PWD , ToOther
     FROM = FROM_EMAIL
     TO = send_to
 
@@ -159,25 +147,11 @@ def send_email(SUBJECT , message , send_to):
 
 
 
-send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected.<br>" , ToMe)
-
-if( int( open("app_terminated.txt").read() ) == 1):
-    print("All files reset...")
-    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-    send_email("'CarClicker app terminated' error corrected", "'CarClicker app terminated' error successfully corrected." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-    writeAppTerminated("app_terminated.txt" , 0)
-    os.system("python3 " + PATH_NAME + "/reset_all_files.py")
-else:
-    print("Computing time for updates...")
-    changeDelayOnceWrite("change_delay_once.txt" , 1)
-
-
-
 
 
 def read_TXT_FILE_from_gmail():
-    global ToOther , ToMe
 
+    found_insert_or_delete_word = 0
     mail = imaplib.IMAP4_SSL(SMTP_SERVER)
     mail.login(FROM_EMAIL , FROM_PWD)
     mail.select('inbox')
@@ -186,28 +160,24 @@ def read_TXT_FILE_from_gmail():
     mail_ids = data[1]
     id_list = mail_ids[0].split()   
     latest_email_id = int(id_list[-1])
-    check_last_N_emails = 10+1
-    msg=0
+    check_last_N_emails = 6
     for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
         data = mail.fetch(str(e), '(RFC822)' )
         for response_part in data:
             arr = response_part[0]
             if isinstance(arr, tuple):
-                try:
-                    msg = email.message_from_string(str(arr[1] , 'utf-8'))
-                    email_subject = msg['subject']
-                    email_from = msg['from']
-                    
-                except:
-                    break
-
+                msg = email.message_from_string(str(arr[1],'utf-8'))
+                email_subject = msg['subject']
+                email_from = msg['from']
+                
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
                 open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
                
-        if( not "20 errors occured" in email_subject and (email_from == ToOther or email_from == ToMe) ):
+        if(not "20 errors occured" in email_subject):
             if(email_subject == "delete"):
+                found_insert_or_delete_word = 1
                 exists = 0
                 
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
@@ -233,6 +203,8 @@ def read_TXT_FILE_from_gmail():
 
 
             elif(email_subject == "insert"):
+                found_insert_or_delete_word = 1
+
                 now = datetime.datetime.now()
                 if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
@@ -246,8 +218,7 @@ def read_TXT_FILE_from_gmail():
                     send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) + " inserted successfully.<br>List of all machines updated at " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                     return
 
-        else:
-            continue
+
 
 
 
@@ -364,6 +335,15 @@ def read_error(file_name):
 
 
 
+
+def changeDelayOnceWrite(file_name , number): # in the beginning 'number' must be '1'... -> 'change_delay_once.txt'
+    once = open(file_name , 'w')
+    once.write( str(number) )
+    once.flush()
+    once.close()
+
+
+
 def changeDelayOnceRead(file_name): 
     once = open(file_name , 'r')
     return int( once.read() )
@@ -414,6 +394,7 @@ def error_and_back_to_internet():
                 send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
                 send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 print("Sent email due to network disconnection... > " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+
 
 
 
@@ -486,6 +467,10 @@ try:
 
             if( readTotalUpdates() < totalUpdateOfTheDay ):
 
+                file = open("wait.txt", "w")    # open the file
+                file.write(str(1))   # write the number in the file
+                file.flush()
+
                 read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
 
                 with open("updateNumber.txt") as file:
@@ -496,7 +481,7 @@ try:
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
-                #updateMachine.click()       # press the "update" button
+                updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -560,7 +545,7 @@ try:
                 send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 write_error("run_after_error.txt" , 0)
                 print("Emails sent... Purpose: Unrecognized errors solved.")
-                print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Running normally again, due to 5 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
             
             
             if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
@@ -579,6 +564,10 @@ try:
             
 
         elif(current_time > off_time):
+            if( int( open("wait.txt" , 'r').read() ) == 1):
+                file = open("wait.txt", "w")    # open the file
+                file.write(str(0))   # write the number in the file
+                file.flush()
 
                 all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
                 line = linecache.getline("MachinesEachUpdate.txt" , 0)
@@ -600,10 +589,41 @@ try:
                     print("Emails just sent... Purpose: " + str(open("totalUpdates.txt").read()) + " updates were performed successfully.")
                 
                 # reset all files for the new day    
-                os.system("python3 " + PATH_NAME + "/reset_all_files.py")
                 
                 if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
                     os.remove(PATH_NAME + "geckodriver.log")
+                file = open("updateNumber.txt", "w")    # open the file
+                file.write(str(0))   # write the number in the file
+                file.flush() 
+                file.close()
+
+                fileTotal = open("totalUpdates.txt", "w")    # open the file
+                fileTotal.write(str(0))   # write the number in the file
+                fileTotal.flush()
+                fileTotal.close()
+
+                fileEach = open("MachinesEachUpdate.txt" , "w")
+                for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt")):
+                    fileEach.write(str(0) + "\n")
+                fileEach.close()
+
+
+                changeDelayOnceWrite("change_delay_once.txt" , 1)
+                writeNumOfErrors("let_5_errors_happen.txt" , 0)
+                write_delay("delay.txt" , 5)
+                write_error("run_after_error.txt" , 0)
+                __internetStatusError__Write("internet_statusError.txt" , 0)
+
+                errors__ = open("totalErrors.txt" , 'w')
+                errors__.write( str(0) )
+                errors__.flush()
+                errors__.close()
+
+                internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
+                internet_err_DATE_file.write( str(0) )
+                internet_err_DATE_file.flush()
+                internet_err_DATE_file.close()
+
 
                 # executes only once per day...
                 print("Sleeping till next day...")
@@ -612,12 +632,8 @@ try:
                 time.sleep( computeTimeSleep(6 , 59 , 50) )  # sleep till tomorrow morning at 7pm                
                 
                 driver.quit()   # quit firefox
-                try:
-                    os.system("python3 " + PATH_NAME + "/carClicker.py") # run again from the top
-                except:
-                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-
+                os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+            
 
 
 
@@ -626,26 +642,20 @@ except: # if anything is wrong
     read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
                 
     __totalErrorsOfDay__W("totalErrors.txt")
-    writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
+    writeNumOfErrors("let_5_errors_happen.txt" , readNumOfErrors("let_5_errors_happen.txt") + 1)
 
-
-    if( readNumOfErrors("let_20_errors_happen.txt") == 20):
+    
+    if( readNumOfErrors("let_5_errors_happen.txt") == 5):
         with open("updateNumber.txt") as file:
             today = date.today()
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+            send_email("5 errors occured in 'www.car.gr'  " + str_date , "5 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
-            writeNumOfErrors("let_20_errors_happen.txt" , 0)
+            writeNumOfErrors("let_5_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
-    try:
-        os.system("python3 " + PATH_NAME + "/carClicker.py") # run again from the top
-    except:
-        writeAppTerminated("app_terminated.txt" , 1)
-        print("CarClicker app terminated unexpectedly")
-        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-        send_email("SOS. CarClicker app terminated unexpectedly", "CarClicker app terminated unexpectedly.<br>" + "The system tried to re-run the app with no success.<br>" + "This email sent in order to tell you to manually start the app again." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
 
 
 
