@@ -556,8 +556,8 @@ try:
                 time.sleep(sleep__)
             
 
-            elif (readTotalUpdates() < totalUpdateOfTheDay ):#int( open("delay.txt").read() )
-                for i in range( 1 ,  10):   # sleeping... & checking for network disconnection
+            elif (readTotalUpdates() < totalUpdateOfTheDay ):
+                for i in range( 1 ,  int( open("delay.txt").read() )):   # sleeping... & checking for network disconnection
                     time.sleep(1)
                     error_and_back_to_internet()
                 
