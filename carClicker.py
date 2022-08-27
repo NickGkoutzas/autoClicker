@@ -477,7 +477,7 @@ try:
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
-                #updateMachine.click()       # press the "update" button
+                updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
