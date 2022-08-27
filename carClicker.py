@@ -1,28 +1,26 @@
 # Nick Gkoutzas - Feb 2022 --------------
-# --------------- Last update: Aug 10 2022
+# --------------- Last update: Aug 27 2022
 #----------------------------------------
 
 from selenium import webdriver
 from datetime import datetime , time , date
-import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email , traceback
+import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
 
 
 
-# *** when power (electricity) is restored -> I have to reset change_delay_once.txt file to '1', in order to run the computeDelay() function again.
-
 # Fill the information !!!
-#====================================
-FROM_EMAIL = "-"                    
-FROM_PWD = "-"   # app password           
-ToMe = "-"
-ToOther = "-"
-site_username = "-"
-site_password = "-"
-PATH_NAME = "-"
-#====================================
+#=====================================================================================
+FROM_EMAIL = "-"       # email address (source)        
+FROM_PWD = "-"         # email address (source) passcode           
+ToMe = "-"             # email address (destination) #1
+ToOther = "-"          # email address (destination) #2
+site_username = "-"    # site name
+site_password = "-"    # site passcode
+PATH_NAME = "-"        # path name of the script
+#=====================================================================================
 
 SMTP_SERVER = "imap.gmail.com" 
 SMTP_PORT = 993
@@ -143,6 +141,7 @@ def send_email(SUBJECT , message , send_to):
     server.sendmail(FROM , TO , MESSAGE.as_string() )
     server.quit()
     return TO
+
 
 
 
@@ -407,7 +406,6 @@ error_and_back_to_internet()
 
 try:
     error_and_back_to_internet()
-    
     link_site = "https://www.car.gr"    # link for car.gr 
     driver.get(link_site)        # open car.gr site
     time.sleep(1)
@@ -464,8 +462,12 @@ try:
 
             if( readTotalUpdates() < totalUpdateOfTheDay ):
 
-                read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
+                #print("Checking emails... This may take a while." , end = "" , flush = True)
+                read_TXT_FILE_from_gmail() # check if the user of the site sent an email...
+                #print(" -> Done")
+                #print("Compute time..." , end = "" , flush = True)
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
+                #print(" -> Done")
 
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
@@ -475,7 +477,7 @@ try:
                 error_and_back_to_internet()
                 updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
-                updateMachine.click()       # press the "update" button
+                #updateMachine.click()       # press the "update" button
 
 
                 machinesEachUpdate[currentPosUpdate] += 1
@@ -515,11 +517,16 @@ try:
                                                      "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
                                         "Remember to add" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                          + "Written in Python" , ToOther)
-                        print("Emails sent... Purpose: New day, new updates.")
+                        print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
                     now = datetime.datetime.now()
-                    print("Total updates till now, (" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "): " + open("totalUpdates.txt").read())
+                    print("Total updates till now, (" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "): " , end = "" , flush = True)
+                    if( int (open("totalUpdates.txt").read() ) <= 9):
+                        print("0" + open("totalUpdates.txt").read())
+                    else:
+                        print(open("totalUpdates.txt").read())
+
                  
                 currentPosUpdate += 1       # increase current position of machine update
                 with open("updateNumber.txt" , 'w') as file:
@@ -549,8 +556,8 @@ try:
                 time.sleep(sleep__)
             
 
-            elif (readTotalUpdates() < totalUpdateOfTheDay ):
-                for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection
+            elif (readTotalUpdates() < totalUpdateOfTheDay ):#int( open("delay.txt").read() )
+                for i in range( 1 ,  10):   # sleeping... & checking for network disconnection
                     time.sleep(1)
                     error_and_back_to_internet()
                 
@@ -627,9 +634,7 @@ try:
 
 
 except: # if anything is wrong
-    print("AN ERROR OCCURED. Trying again. Loading...")
-    read_TXT_FILE_from_gmail() # check if the admin of the site sent an email...
-    write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
+    print("An error occured. Trying again. Loading...")
 
     __totalErrorsOfDay__W("totalErrors.txt")
     writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
@@ -645,7 +650,11 @@ except: # if anything is wrong
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
-    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-
-
-
+    try:
+        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+    except:
+        print("WARNING !!! 'carClicker' app stopped running due to an exception. The app tried to re-run itself without success. Someone have to manually run it again...")
+        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
+        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
+        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)            
