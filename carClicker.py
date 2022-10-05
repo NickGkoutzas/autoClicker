@@ -1,7 +1,8 @@
-# Nick Gkoutzas - Feb 2022 --------------
+# Nick Gkoutzas - Feb 2022 ---------------
 # --------------- Last update: Aug 27 2022
-#----------------------------------------
+# ----------------------------------------
 
+from ast import expr_context
 from selenium import webdriver
 from datetime import datetime , time , date
 import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email
@@ -400,7 +401,7 @@ def error_and_back_to_internet():
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
-driver = webdriver.Firefox(options=options)     # call Firefox 
+driver = webdriver.Firefox(options=options)     # call Firefox  
 error_and_back_to_internet()
 
 
@@ -410,8 +411,11 @@ try:
     driver.get(link_site)        # open car.gr site
     time.sleep(1)
     error_and_back_to_internet()
-    #cookies = driver.find_element_by_css_selector(".css-ofc9r3")      # accept cookies
-    cookies = driver.find_element_by_css_selector("button.css-1jlb8eq:nth-child(3)")      # accept cookies
+    global cookies
+    try:
+        cookies = driver.find_element_by_css_selector(".css-ofc9r3")      # accept cookies
+    except:
+        cookies = driver.find_element_by_css_selector("button.css-1jlb8eq:nth-child(3)")      # accept cookies
 
     cookies.click()
     time.sleep(1)
@@ -475,11 +479,15 @@ try:
 
                 
                 error_and_back_to_internet()
-                updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                global updateMachine
+                try:
+                    updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                except:
+                    updateMachine = driver.find_element_by_css_selector("div.c-list-group-item:nth-child(1) > div:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
                 updateMachine.click()       # press the "update" button
 
-
+                                                                    
                 machinesEachUpdate[currentPosUpdate] += 1
                 with open("updateNumber.txt" , 'r') as file:
                     replace_line("MachinesEachUpdate.txt" , int( file.read() ) , machinesEachUpdate)
