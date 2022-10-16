@@ -15,13 +15,13 @@ from selenium.webdriver.common.by import By
 
 # Fill the information !!!
 #=====================================================================================
-FROM_EMAIL = "nickgkoutzas@gmail.com"       # email address (source)        
-FROM_PWD = "hornahxrowqqjpyg"         # email address (source) passcode           
-ToMe = "nickgkoutzas@gmail.com"             # email address (destination) #1
-ToOther = "nickgkoutzas@gmail.com"          # email address (destination) #2
-site_username = "electronord"    # site name
-site_password = "cKUJD6DEjaDu988"    # site passcode
-PATH_NAME = "/home/nick/Documents/Programming/Python/car.gr/autoClicker/"        # path name of the script
+FROM_EMAIL = ""       # email address (source)        
+FROM_PWD = ""         # email address (source) passcode           
+ToMe = ""             # email address (destination) #1
+ToOther = ""          # email address (destination) #2
+site_username = ""    # site name
+site_password = ""    # site passcode
+PATH_NAME = ""        # path name of the script
 #=====================================================================================
 
 SMTP_SERVER = "imap.gmail.com" 
