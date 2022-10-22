@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ---------------
-# --------------- Last update: Oct 16 2022
+# --------------- Last update: Oct 23 2022
 # ----------------------------------------
 
 from selenium import webdriver
@@ -676,14 +676,42 @@ try:
             
 
 
+except OSError:
+    print("===============================================\nAn OS error occured. Trying again. Loading...\n===============================================\n")
+    
+    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
 
-except: # if anything is wrong
-    print("===============================================\nAn error occured. Trying again. Loading...\n===============================================\n")
+    # close all files...
+    open("change_delay_once.txt").close()
+    open("delay.txt").close()
+    open("internet_error_DATE.txt").close()
+    open("internet_statusError.txt").close()
+    open("let_20_errors_happen.txt").close()
+    open("MachinesEachUpdate.txt").close()
+    open("NumberOfMachines.txt").close()
+    open("run_after_error.txt").close()
+    open("totalErrors.txt").close()
+    open("totalUpdates.txt").close()
+    open("updateNumber.txt").close()
+    open("URL_machines.txt").close()
 
+    write_error("run_after_error.txt" , 1)
+    writeNumOfErrors("let_20_errors_happen.txt" , 0)
     __totalErrorsOfDay__W("totalErrors.txt")
     writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
 
-    
+    driver.quit()   # quit firefox
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
+
+
+
+except: # if anything is wrong
+    print("===============================================\nAn error occured. Trying again. Loading...\n===============================================\n")
+    __totalErrorsOfDay__W("totalErrors.txt")
+    writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
+
     if( readNumOfErrors("let_20_errors_happen.txt") == 20):
         with open("updateNumber.txt") as file:
             today = date.today()
@@ -694,11 +722,5 @@ except: # if anything is wrong
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
-    try:
-        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-    except:
-        print("WARNING !!! 'carClicker' app stopped running due to an exception. The app tried to re-run itself without success. Someone have to manually run it again...")
-        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
-        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
-        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)            
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+         
