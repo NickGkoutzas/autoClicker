@@ -1,6 +1,13 @@
-import os , sys , time
-i=1
+import os , time , sys
+i = 1
 while(1):
-    print("KKKKKKKKKKKKKKKKKKK  -> " + str(i))
-    time.sleep(1)
-    i += 1
+    if(i == 20):
+        time.sleep(300)
+        os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/test.py'")
+        
+        os.system("python3 test.py.2")
+    else:
+        print("helloooooo " + str(i))
+        time.sleep(1)
+        i += 1
+    
