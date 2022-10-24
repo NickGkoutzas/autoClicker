@@ -6,8 +6,8 @@ while(1):
         os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/test.py'")
         time.sleep(2)
         
-        #os.execv(sys.executable, ["python3"] + sys.argv)
-        break
+        os.execv(sys.executable, ["python3 test.py.2"] + sys.argv)
+        #break
         #os.system("python3 test.py.2")
     else:
         print("helloooooo " + str(i))
