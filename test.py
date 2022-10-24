@@ -3,7 +3,7 @@ i = 1
 while(1):
     if(i == 20):
         os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/test.py'")
-        time.sleep(20)
+        time.sleep(240)
         os.system("python3 test.py.2")
     else:
         print("helloooooo " + str(i))
