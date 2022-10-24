@@ -9,6 +9,6 @@ while(1):
         #os.execv(sys.executable, ["python3"] + sys.argv)
         os.system("python3 test.py." + str(j+1))
     else:
-        print("Hello  -> " + str(i))
+        print("Hellooooooo  -> " + str(i))
         time.sleep(1)
     i += 1
