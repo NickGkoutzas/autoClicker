@@ -488,7 +488,7 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("          -> APPLICATION STARTED <-\n===============================================")
+    print("          -> APPLICATION HAS STARTED <-\n===============================================")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
     driver.get(link_site)               # open car.gr site
