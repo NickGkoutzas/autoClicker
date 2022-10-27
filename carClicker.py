@@ -1,26 +1,26 @@
 # Nick Gkoutzas - Feb 2022 ---------------
-# --------------- Last update: Aug 27 2022
+# --------------- Last update: Oct 28 2022
 # ----------------------------------------
 
-from ast import expr_context
 from selenium import webdriver
 from datetime import datetime , time , date
 import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.by import By
 
 
 
-# Fill the information !!!
 #=====================================================================================
-FROM_EMAIL = "-"       # email address (source)        
-FROM_PWD = "-"         # email address (source) passcode           
-ToMe = "-"             # email address (destination) #1
-ToOther = "-"          # email address (destination) #2
-site_username = "-"    # site name
-site_password = "-"    # site passcode
-PATH_NAME = "-"        # path name of the script
+lines = tuple(open("passwords.txt" , 'r'))
+FROM_EMAIL = lines[0] 
+FROM_PWD = lines[1]            
+ToMe = lines[2]
+ToOther = lines[3]     
+site_username = lines[4]   
+site_password = lines[5]    
+PATH_NAME = lines[6]  
 #=====================================================================================
 
 SMTP_SERVER = "imap.gmail.com" 
@@ -51,6 +51,13 @@ def read_file_from_email(file_name):
 
 
 
+def read_file_from_email_GitHub(file_name):
+    __file = open(file_name , 'r')
+    number = __file.readline()#.strip("\n")
+    __file.close()
+    return int(number)
+
+
 
 
 def write_EDIT__file_NumberOfMachines(file_name , number):     # File: NumberOfMachines.txt
@@ -78,7 +85,7 @@ def replace_line(file_name , line_num , text):
 
 
 
-def delete_line(file_name , line_num , text):
+def delete_line(file_name , line_num):
     lines = open(file_name, 'r').readlines()
     lines[line_num] = ""
     out = open(file_name, 'w')
@@ -100,7 +107,7 @@ def read_URL_machines_FILE(file__ , which_line):
 
 
 def delete_from_URL_MACHINES_FILE(file__ , URL):
-    for i in range( read_NumberOfMachines("NumberOfMachines.txt") ):
+    for i in range( read_NumberOfMachines("URL_machines.txt") ):
         URL_machine = linecache.getline(file__ , i+1).strip("\n")
         if(URL == URL_machine):
             delete_line("URL_machines.txt" , i , "")
@@ -118,7 +125,30 @@ numOfMachines = read_NumberOfMachines("NumberOfMachines.txt")      # number of m
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = int( open("updateNumber.txt").read() )    # current position of update
 bad_internet_connection = 0
-finished_earlier = True
+sec__ = 0
+min__ = 0
+hour__ = 0
+
+
+
+
+
+
+def time_correction():
+    global  hour__ , min__ , sec__
+    if(now.second < 10):
+        sec__ = str(0) + str(now.second)
+    else:
+        sec__ = str(now.second)
+    if(now.minute < 10):
+        min__ = str(0) + str(now.minute)
+    else:
+        min__ = str(now.minute)
+    if(now.hour < 10):
+        hour__ = str(0) + str(now.hour)
+    else:
+        hour__ = str(now.hour)
+    return sec__ , min__ , hour__
 
 
 
@@ -148,6 +178,34 @@ def send_email(SUBJECT , message , send_to):
 
 
 
+def changeDelayOnceWrite(file_name , number): # in the beginning 'number' must be '1'... -> 'change_delay_once.txt'
+    once = open(file_name , 'w')
+    once.write( str(number) )
+    once.flush()
+    once.close()
+
+
+
+
+def read_GitHubUpdatesNumber(file_name):
+    file_ = open(file_name , 'r')
+    number = file_.read()
+    file_.close()
+    return int(number)
+
+
+
+
+
+def write_GitHubUpdatesNumber(file_name , number):
+    file_w = open(file_name , 'w')
+    file_w.write(str(number))
+    file_w.flush()
+    file_w.close()
+
+
+
+
 
 def read_TXT_FILE_from_gmail():
     global FROM_EMAIL , FROM_PWD
@@ -167,7 +225,7 @@ def read_TXT_FILE_from_gmail():
             if isinstance(arr, tuple):
                 msg = email.message_from_string(str(arr[1],'utf-8'))
                 email_subject = msg['subject']
-                email_from = msg['from']
+                email_date = msg['Date']
 
         for part in msg.walk():
             filename__ = part.get_filename()
@@ -175,45 +233,72 @@ def read_TXT_FILE_from_gmail():
                 open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
                
         if(not "20 errors occured" in email_subject):
-            if(email_subject == "delete"):
+
+            if(email_subject == "delete" or email_subject == "Delete"):
                 exists = 0
-                
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                    if( read_file_from_email(filename__) in open("URL_machines.txt").read() ):
-                        delete_line("MachinesEachUpdate.txt" , s - 1, machinesEachUpdate)
-                        delete_from_URL_MACHINES_FILE("URL_machines.txt" , read_file_from_email(filename__) )
+                    if( read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() ):
+                        delete_line("MachinesEachUpdate.txt" , s+1)
+                        delete_line("URL_machines.txt" , s+1)
                         exists = 1
                         break
-                
-                
+
                 now = datetime.datetime.now()
-                if(exists == 0 and read_file_from_email(filename__) in open("URL_machines.txt").read() ):    # the url that sent me ,does not exist in my list
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) + " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email(filename__) + " does not exist in the list .<br>Time: " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                time_correction()
+                if(exists == 0 and read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() and filename__ == "delete.txt"):    # the url that sent me ,does not exist in my list
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email("\n" + filename__) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email("\n" + filename__) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                     pass
 
-                elif(exists == 1):
-                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) + " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email(filename__) + " deleted successfully.<br>List of all machines updated at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-                        
+                elif(exists == 1 and filename__ == "delete.txt"):
+                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email("\n" + filename__) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email("\n" + filename__) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
-                return
 
 
-            elif(email_subject == "insert"):
+
+            if(email_subject == "insert" or email_subject == "Insert"):
 
                 now = datetime.datetime.now()
-                if(not read_file_from_email(filename__) in open("URL_machines.txt").read() ):
+                time_correction()
+                if(not read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() and filename__ == "insert.txt"):
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
                     with open("URL_machines.txt", "a") as __file__:
-                        __file__.write(read_file_from_email(filename__) + "\n")
+                        __file__.write(read_file_from_email("\n" + filename__) + "\n")
 
                     with open("MachinesEachUpdate.txt", "a") as __file:
                         __file.write(str(0) + "\n")
 
-                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) + " inserted successfully.<br>List of all machines updated at " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email(filename__) + " inserted successfully.<br>List of all machines updated at " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)+ "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-                    return
+                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email("\n" + filename__) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email("\n" + filename__) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+
+
+
+            if(email_subject == "update" or email_subject == "Update"):
+                now = datetime.datetime.now()
+                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                date_of_email_update = ''
+
+                for _string_ in range(5 , 16):
+                    date_of_email_update += str(email_date[_string_])
+
+                if(date_of_email_update == dateOfToday and not read_file_from_email_GitHub("\n" + filename__) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
+                    time_correction()
+                    write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
+                    print("===============================================")
+                    print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
+                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+
+                    print("===============================================")
+                    time.sleep(7 * 60)  # sleep for 7 minutes
+                    print("The new version is currently being downloaded and will be run at a moment...")
+                    os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/carClicker.py' && mv carClicker.py.1 carClicker.py")
+                    driver.quit()   # quit firefox
+                    time.sleep(5)
+                    changeDelayOnceWrite("change_delay_once.txt" , 1)
+                    os.system("python3 carClicker.py")
 
 
 
@@ -221,7 +306,7 @@ def read_TXT_FILE_from_gmail():
 
 
 
-on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
+on_time = datetime.datetime.strptime('02:00:00' , '%H:%M:%S').time()    # start updates at this time
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
 
@@ -283,7 +368,11 @@ def __totalErrorsOfDay__W(file_name):
 
 def updatesStartedAt():
     now = datetime.datetime.now()
-    return ( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
+    if(now.second < 10):
+        sec__ = str(0) + str(now.second)
+    else:
+        sec__ = str(now.second)
+    return ( str(hour__) + ":" + str(min__) + ":" + str(sec__))
 
 
 
@@ -307,13 +396,6 @@ def computeTimeSleep(hour__ , minute__ , second__):
 
 
 
-def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must be '5'... -. 'delay.txt'
-    delay = open(file_name , 'w')
-    delay.write( str(writeDelay) )
-    delay.flush()
-    delay.close()
-
-
 
 def write_error(file_name , write__):    # in the beginning it's '0'
     error__ = open(file_name , 'w')
@@ -330,14 +412,12 @@ def read_error(file_name):
 
 
 
+def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must be '5'... -. 'delay.txt'
+    delay = open(file_name , 'w')
+    delay.write( str(writeDelay) )
+    delay.flush()
+    delay.close()
 
-
-
-def changeDelayOnceWrite(file_name , number): # in the beginning 'number' must be '1'... -> 'change_delay_once.txt'
-    once = open(file_name , 'w')
-    once.write( str(number) )
-    once.flush()
-    once.close()
 
 
 
@@ -377,7 +457,8 @@ def error_and_back_to_internet():
         __internetStatusError__Write("internet_statusError.txt" , 1)
         fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
         now = datetime.datetime.now()
-        fileInternetError.write( str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )   # write the number in the file
+        time_correction()
+        fileInternetError.write( hour__ + ":" + min__ + ":" + sec__ )   # write the number in the file
         fileInternetError.flush()
         fileInternetError.close()
 
@@ -388,10 +469,11 @@ def error_and_back_to_internet():
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
                 __internetStatusError__Write("internet_statusError.txt" , 0)
                 now = datetime.datetime.now()
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
-                print("Sent email due to network disconnection... > " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second))
-
+                time_correction()
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                print("Sent email due to network disconnection... > " + hour__ + ":" + min__ + ":" + sec__)
+                break
 
 
 
@@ -401,47 +483,58 @@ def error_and_back_to_internet():
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
-driver = webdriver.Firefox(options=options)     # call Firefox  
-error_and_back_to_internet()
+driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide window **)
 
 
 try:
     error_and_back_to_internet()
-    link_site = "https://www.car.gr"    # link for car.gr 
-    driver.get(link_site)        # open car.gr site
+    print("          -> APPLICATION STARTED <-\n===============================================")
+    print("Opening 'www.car.gr' page...") 
+    link_site = "https://www.car.gr"    # link for car.gr
+    driver.get(link_site)               # open car.gr site
     time.sleep(1)
     error_and_back_to_internet()
     global cookies
-    try:
-        cookies = driver.find_element_by_css_selector(".css-ofc9r3")      # accept cookies
-    except:
-        cookies = driver.find_element_by_css_selector("button.css-1jlb8eq:nth-child(3)")      # accept cookies
 
+    try:
+        cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3")                              # accept cookies
+    except:
+        try:
+            cookies = driver.find_element(By.CSS_SELECTOR , "button.css-1jlb8eq:nth-child(3)")      # accept cookies
+        except:
+            cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3 > span:nth-child(1)")      # accept cookies
+    print("Accepting cookies...")
     cookies.click()
     time.sleep(1)
     error_and_back_to_internet()
-
+    print("Going to login page...")
     driver.get("https://www.car.gr/login/")
     error_and_back_to_internet()
-
-    username_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys(site_username)    # give username
+    print("Entering username and password in login page...")
+    username_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys(site_username)     # give username
     error_and_back_to_internet()
 
-    password_input = driver.find_element_by_css_selector("#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys(site_password)     # give password
+    password_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys(site_password)     # give password
     time.sleep(1)
     error_and_back_to_internet()
     
-    log_in_button = driver.find_element_by_css_selector(".col-sm-offset-6 > button:nth-child(1)")   # press login button
+    log_in_button = driver.find_element(By.CSS_SELECTOR , ".col-sm-offset-6 > button:nth-child(1)")   # press login button
     error_and_back_to_internet()
     
     log_in_button.click()
+    
+    current_time = datetime.datetime.now().time()   # get current time
+    if(not current_time < on_time and not current_time >= off_time):
+        print("Username and password acceptance...\nUpdates will start soon...\n===============================================\n") 
+    else:
+        print("Username and password acceptance...\nUpdates will start at 07:00:00 in the morning.\n===============================================\n") 
     time.sleep(1)  
     error_and_back_to_internet()
 
-    with open("change_delay_once.txt" , 'r'):
-        if( changeDelayOnceRead("change_delay_once.txt") == 1 ):
-            write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
-            changeDelayOnceWrite("change_delay_once.txt" , 0) # now you can't change anything in file -> (delay.txt)
+    if( changeDelayOnceRead("change_delay_once.txt") == 1 ):
+        write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
+        changeDelayOnceWrite("change_delay_once.txt" , 0) # now you can't change anything in file -> (delay.txt)
+    
 
 
     #======================================================================================================================================================================
@@ -456,38 +549,31 @@ try:
     line = linecache.getline("MachinesEachUpdate.txt" , 0)
     with open("totalUpdates.txt") as fileTotal:
         totalUpdates = int(fileTotal.read())
-
-
+    
     # main loop
     while(True):    
         current_time = datetime.datetime.now().time()   # get current time
 
         if(not current_time < on_time and not current_time >= off_time):
-
+            
             if( readTotalUpdates() < totalUpdateOfTheDay ):
-
-                #print("Checking emails... This may take a while." , end = "" , flush = True)
                 read_TXT_FILE_from_gmail() # check if the user of the site sent an email...
-                #print(" -> Done")
-                #print("Compute time..." , end = "" , flush = True)
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
-                #print(" -> Done")
 
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
-                    machine = driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
+                    driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
 
-                
                 error_and_back_to_internet()
                 global updateMachine
                 try:
-                    updateMachine = driver.find_element_by_css_selector("div.list-group-item:nth-child(1)")     # find the update button
+                    updateMachine = driver.find_element(By.CSS_SELECTOR , "div.list-group-item:nth-child(1)")     # find the update button
                 except:
-                    updateMachine = driver.find_element_by_css_selector("div.c-list-group-item:nth-child(1) > div:nth-child(1)")     # find the update button
+                    updateMachine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(1) > div:nth-child(1)")     # find the update button
                 error_and_back_to_internet()
                 updateMachine.click()       # press the "update" button
-
-                                                                    
+                
+                
                 machinesEachUpdate[currentPosUpdate] += 1
                 with open("updateNumber.txt" , 'r') as file:
                     replace_line("MachinesEachUpdate.txt" , int( file.read() ) , machinesEachUpdate)
@@ -497,39 +583,52 @@ try:
                     fileTotal.write(str(totalUpdates))   # write the number in the file
                     fileTotal.flush() 
                 
+                
                 with open("totalUpdates.txt" , 'r') as fileTotal_R:
-                    if( int(fileTotal_R.read()) == 1 ):
+                    time_correction()
+                    if( int(fileTotal_R.read()) == 1):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                         send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                         "<br><br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK), follow the steps below:<br><br><br> \
-                                         * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
+                                            "<br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                                            * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                     "     with subject: 'insert'" + "<br>" + "&nbsp;" * 5 + \
-                                                     "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
+                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 5 + \
+                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                     "     with subject: 'delete'" + "<br>" + "&nbsp;" * 5 + \
-                                                     "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
-                                        "Remember to add" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python" , ToMe)
+                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 5 + \
+                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
+                                        "* Update the current version of program from<br>" + "&nbsp;" * 5 + "GitHub?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
+                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 6 + \
+                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 5 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                        "Remember to add the extension" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>" \
+                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt).<br>You'll receive a notification of your action, if everything goes well.<br><br>" + "&nbsp;" * 60\
+                                            + "Written in Python" , ToMe)
                         send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                         "<br><br><br>Note:<br>If you want to insert or delete a new machine<br>(URL-LINK), follow the steps below:<br><br><br> \
-                                         * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
+                                            "<br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                                            * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                     "     with subject: 'insert'" + "<br>" + "&nbsp;" * 5 + \
-                                                     "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
+                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 5 + \
+                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                     "     with subject: 'delete'" + "<br>" + "&nbsp;" * 5 + \
-                                                     "     and message: attach a txt file (e.g: a.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
-                                        "Remember to add" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python" , ToOther)
+                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 5 + \
+                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
+                                        "* Update the current version of program from<br>" + "&nbsp;" * 5 + "GitHub?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
+                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 6 + \
+                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 5 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                        "Remember to add the extension" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>" \
+                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt).<br>You'll receive a notification of your action, if everything goes well.<br><br>" + "&nbsp;" * 60\
+                                            + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
-                        print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                        
+                        print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
                     now = datetime.datetime.now()
-                    print("Total updates till now, (" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "): " , end = "" , flush = True)
+                    print("Total updates till now, (" + hour__ + ":" + min__ + ":" + sec__ + "): " , end = "" , flush = True)
                     if( int (open("totalUpdates.txt").read() ) <= 9):
                         print("0" + open("totalUpdates.txt").read())
                     else:
@@ -550,15 +649,15 @@ try:
 
             if( read_error("run_after_error.txt") == 1 ):
                 now = datetime.datetime.now()
-                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                time_correction()
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 write_error("run_after_error.txt" , 0)
                 print("Emails sent... Purpose: Unrecognized errors solved.")
-                print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) )
+                print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
             
             
-            if(finished_earlier and readTotalUpdates() == totalUpdateOfTheDay ):
-                finished_earlier = False
+            if(readTotalUpdates() == totalUpdateOfTheDay ):
                 print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
                 sleep__ = computeTimeSleep(23 , 55 , 0)
                 time.sleep(sleep__)
@@ -628,6 +727,10 @@ try:
                 internet_err_DATE_file.flush()
                 internet_err_DATE_file.close()
 
+                fileGitHub = open("GitHubUpdatesNumber.txt" , 'w')
+                fileGitHub.write( str(0) )
+                fileGitHub.flush()
+                fileGitHub.close()
 
                 # executes only once per day...
                 print("Sleeping till next day...")
@@ -637,32 +740,60 @@ try:
                 
                 driver.quit()   # quit firefox
                 os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-            
+                
+
+
+except OSError:
+    print("===============================================\nAn OS error occured. Trying again. Loading...\n===============================================\n")
+    
+    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    current_time = datetime.datetime.now().time()   # get current time
+    if(not current_time < on_time and not current_time >= off_time):
+        read_TXT_FILE_from_gmail()
+    # close all files...
+    open("change_delay_once.txt").close()
+    open("delay.txt").close()
+    open("internet_error_DATE.txt").close()
+    open("internet_statusError.txt").close()
+    open("let_20_errors_happen.txt").close()
+    open("MachinesEachUpdate.txt").close()
+    open("NumberOfMachines.txt").close()
+    open("run_after_error.txt").close()
+    open("totalErrors.txt").close()
+    open("totalUpdates.txt").close()
+    open("updateNumber.txt").close()
+    open("URL_machines.txt").close()
+    open("GitHubUpdatesNumber.txt").close()
+    open("passwords.txt").close()
+
+
+    write_error("run_after_error.txt" , 1)
+    writeNumOfErrors("let_20_errors_happen.txt" , 0)
+    __totalErrorsOfDay__W("totalErrors.txt")
+    writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
+
+    driver.quit()   # quit firefox
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
 
 
 
 except: # if anything is wrong
-    print("An error occured. Trying again. Loading...")
-
+    print("===============================================\nAn error occured. Trying again. Loading...\n===============================================\n")
     __totalErrorsOfDay__W("totalErrors.txt")
     writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
-
-    
+    current_time = datetime.datetime.now().time()   # get current time
+    if(not current_time < on_time and not current_time >= off_time):
+        read_TXT_FILE_from_gmail()
     if( readNumOfErrors("let_20_errors_happen.txt") == 20):
         with open("updateNumber.txt") as file:
             today = date.today()
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>" + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
     driver.quit()   # quit firefox
-    try:
-        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-    except:
-        print("WARNING !!! 'carClicker' app stopped running due to an exception. The app tried to re-run itself without success. Someone have to manually run it again...")
-        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
-        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-        send_email("~WARNING~ / 'www.car.gr' " , "'carClicker' app stopped running due to an exception.<br>The app tried to re-run itself without success.<br>"\
-        + "This email sent in order to inform you to manually run it again.<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)            
+    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
