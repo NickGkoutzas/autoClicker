@@ -44,7 +44,7 @@ def read_NumberOfMachines(file_name):
 
 def read_file_from_email(file_name):
     __file = open(file_name , 'r')
-    link = __file.readline()#.strip("\n")
+    link = __file.readline()
     __file.close()
     return str(link)
 
@@ -53,7 +53,7 @@ def read_file_from_email(file_name):
 
 def read_file_from_email_GitHub(file_name):
     __file = open(file_name , 'r')
-    number = __file.readline()#.strip("\n")
+    number = __file.readline()
     __file.close()
     return int(number)
 
@@ -284,6 +284,7 @@ def read_TXT_FILE_from_gmail():
                     date_of_email_update += str(email_date[_string_])
 
                 if(date_of_email_update == dateOfToday and not read_file_from_email_GitHub("\n" + filename__) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
+                    now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
                     print("===============================================")
@@ -306,7 +307,7 @@ def read_TXT_FILE_from_gmail():
 
 
 
-on_time = datetime.datetime.strptime('02:00:00' , '%H:%M:%S').time()    # start updates at this time
+on_time = datetime.datetime.strptime('07:00:00' , '%H:%M:%S').time()    # start updates at this time
 off_time = datetime.datetime.strptime('23:55:00' , '%H:%M:%S').time()   # stop updates at this time
 now = datetime.datetime.now()
 
@@ -488,7 +489,7 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("          -> APPLICATION HAS STARTED <-\n===============================================")
+    print("          -> APPLICATION STARTED <-\n===============================================")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
     driver.get(link_site)               # open car.gr site
