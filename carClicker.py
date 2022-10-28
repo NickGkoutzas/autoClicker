@@ -628,6 +628,7 @@ try:
                         
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
                     now = datetime.datetime.now()
+                    time_correction()
                     print("Total updates till now, (" + hour__ + ":" + min__ + ":" + sec__ + "): " , end = "" , flush = True)
                     if( int (open("totalUpdates.txt").read() ) <= 9):
                         print("0" + open("totalUpdates.txt").read())
@@ -667,7 +668,6 @@ try:
                 for i in range( 1 ,  int( open("delay.txt").read() )):   # sleeping... & checking for network disconnection
                     time.sleep(1)
                     error_and_back_to_internet()
-                
 
             
 
