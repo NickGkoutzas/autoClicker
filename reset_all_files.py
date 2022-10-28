@@ -49,7 +49,6 @@ for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt")):
     fileEach.write(str(0) + "\n")
 fileEach.close()
 
-
 changeDelayOnceWrite("change_delay_once.txt" , 1)
 writeNumOfErrors("let_20_errors_happen.txt" , 0)
 write_delay("delay.txt" , 5)
@@ -60,6 +59,11 @@ errors__ = open("totalErrors.txt" , 'w')
 errors__.write( str(0) )
 errors__.flush()
 errors__.close()
+
+GitHub_updates_number = open("GitHubUpdatesNumber.txt" , 'w')
+GitHub_updates_number.write( str(0) )
+GitHub_updates_number.flush()
+GitHub_updates_number.close()
 
 internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
 internet_err_DATE_file.write( str(0) )
