@@ -124,7 +124,6 @@ totalUpdates = int( open("totalUpdates.txt").read() )
 numOfMachines = read_NumberOfMachines("NumberOfMachines.txt")      # number of machines
 machinesEachUpdate = [int] * numOfMachines
 currentPosUpdate = int( open("updateNumber.txt").read() )    # current position of update
-bad_internet_connection = 0
 sec__ = 0
 min__ = 0
 hour__ = 0
@@ -136,6 +135,7 @@ hour__ = 0
 
 def time_correction():
     global  hour__ , min__ , sec__
+    now = datetime.datetime.now()
     if(now.second < 10):
         sec__ = str(0) + str(now.second)
     else:
@@ -457,7 +457,6 @@ def error_and_back_to_internet():
         
         __internetStatusError__Write("internet_statusError.txt" , 1)
         fileInternetError = open("internet_error_DATE.txt", "w")    # open the file
-        now = datetime.datetime.now()
         time_correction()
         fileInternetError.write( hour__ + ":" + min__ + ":" + sec__ )   # write the number in the file
         fileInternetError.flush()
@@ -469,7 +468,6 @@ def error_and_back_to_internet():
                 print("Connection restored. Connected... Done")
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
                 __internetStatusError__Write("internet_statusError.txt" , 0)
-                now = datetime.datetime.now()
                 time_correction()
                 send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
                 send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
