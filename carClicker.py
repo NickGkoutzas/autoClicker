@@ -1,6 +1,6 @@
-# Nick Gkoutzas - Feb 2022 ---------------
-# --------------- Last update: Oct 28 2022
-# ----------------------------------------
+# Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
+# --------------- Last update: Nov 04 2022 -> update the variable 'last_update' below
+# -----------------------------------------------------------------------------------
 
 from selenium import webdriver
 from datetime import datetime , time , date
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-
+last_update = "Nov 04 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -37,25 +37,6 @@ def read_NumberOfMachines(file_name):
     return int(numberOfMachines__)
 
 
-
-
-
-
-
-def read_file_from_email(file_name):
-    __file = open(file_name , 'r')
-    link = __file.readline()
-    __file.close()
-    return str(link)
-
-
-
-
-def read_file_from_email_GitHub(file_name):
-    __file = open(file_name , 'r')
-    number = __file.readline()
-    __file.close()
-    return int(number)
 
 
 
@@ -120,10 +101,16 @@ def delete_from_URL_MACHINES_FILE(file__ , URL):
 
 
 totalUpdateOfTheDay = 200
-totalUpdates = int( open("totalUpdates.txt").read() )
+__readTotalUpdates__ = open("totalUpdates.txt" , 'r')
+___readTotalUpdates___ = __readTotalUpdates__.read()
+__readTotalUpdates__.close()
+totalUpdates = int( ___readTotalUpdates___ )
 numOfMachines = read_NumberOfMachines("NumberOfMachines.txt")      # number of machines
 machinesEachUpdate = [int] * numOfMachines
-currentPosUpdate = int( open("updateNumber.txt").read() )    # current position of update
+__readUpdateNumber__ = open("updateNumber.txt" , 'r')
+___readUpdateNumber___ = __readUpdateNumber__.read()
+currentPosUpdate = int( ___readUpdateNumber___ )    # current position of update
+__readUpdateNumber__.close()
 sec__ = 0
 min__ = 0
 hour__ = 0
@@ -226,51 +213,64 @@ def read_TXT_FILE_from_gmail():
                 msg = email.message_from_string(str(arr[1],'utf-8'))
                 email_subject = msg['subject']
                 email_date = msg['Date']
-
+                
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
-                open(PATH_NAME + str(filename__) , "wb").write(part.get_payload(decode=True))
-               
-        if(not "20 errors occured" in email_subject):
+                bodyOfFile = part.get_payload(decode=True).decode()
+                bodyOfFile = bodyOfFile.replace("\n","")
 
+
+        if(not "20 errors occured" in email_subject):
             if(email_subject == "delete" or email_subject == "Delete"):
                 exists = 0
+                listOfURLs = []
+                readMe = open("URL_machines.txt" , 'r')
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                    if( read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() ):
-                        delete_line("MachinesEachUpdate.txt" , s+1)
-                        delete_line("URL_machines.txt" , s+1)
-                        exists = 1
-                        break
+                    readMeValue = readMe.readline().replace("\n" , "")
+                    listOfURLs.append( str(readMeValue) )
+                readMe.close()
 
+                for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                    if( str(bodyOfFile) == listOfURLs[s] ):
+                        delete_line("MachinesEachUpdate.txt" , s)
+                        delete_line("URL_machines.txt" , s)
+                        exists = 1
+                        open("URL_machines.txt").close()
+                        break
+                
+                listOfURLs.clear()
+                
                 now = datetime.datetime.now()
                 time_correction()
-                if(exists == 0 and read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() and filename__ == "delete.txt"):    # the url that sent me ,does not exist in my list
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email("\n" + filename__) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , read_file_from_email("\n" + filename__) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                if(exists == 0 and str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "delete.txt"):    # the url that sent me ,does not exist in my list
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                    open("URL_machines.txt").close()
                     pass
 
                 elif(exists == 1 and filename__ == "delete.txt"):
-                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email("\n" + filename__) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine deleted " , read_file_from_email("\n" + filename__) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
 
 
 
             if(email_subject == "insert" or email_subject == "Insert"):
-
                 now = datetime.datetime.now()
                 time_correction()
-                if(not read_file_from_email("\n" + filename__) in open("URL_machines.txt").read() and filename__ == "insert.txt"):
+                if(not str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "insert.txt"):
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
                     with open("URL_machines.txt", "a") as __file__:
-                        __file__.write(read_file_from_email("\n" + filename__) + "\n")
+                        __file__.write(str(bodyOfFile) + "\n")
 
                     with open("MachinesEachUpdate.txt", "a") as __file:
                         __file.write(str(0) + "\n")
 
-                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email("\n" + filename__) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine inserted " , read_file_from_email("\n" + filename__) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                    open("URL_machines.txt").close()
+                    open("MachinesEachUpdate.txt").close()
+                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
 
 
 
@@ -280,10 +280,10 @@ def read_TXT_FILE_from_gmail():
                 dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
                 date_of_email_update = ''
 
-                for _string_ in range(5 , 16):
+                for _string_ in range(5 , 15):
                     date_of_email_update += str(email_date[_string_])
 
-                if(date_of_email_update == dateOfToday and not read_file_from_email_GitHub("\n" + filename__) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
+                if(date_of_email_update == dateOfToday and not str(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
@@ -314,10 +314,10 @@ now = datetime.datetime.now()
 
 
 
-if( int( open("change_delay_once.txt").read() == 1 ) ):
+if( int( open("change_delay_once.txt" , 'r').read() == 1 ) ):
     if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
         os.remove(PATH_NAME + "geckodriver.log")
-
+        open("change_delay_once.txt").close()
 
 
 
@@ -383,7 +383,10 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
     difference = abs(finalTime - currentTime)
-    return int ( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( open("totalUpdates.txt").read() ) ) ) * 60 ) - 10 )  # in seconds
+    readTotalUpdates___ = open("totalUpdates.txt" , 'r')
+    readTotalUpdates____ = readTotalUpdates___.read()
+    readTotalUpdates___.close()
+    return int ( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( readTotalUpdates____ ) ) ) * 60 ) - 10 )  # in seconds
 
 
 
@@ -408,7 +411,9 @@ def write_error(file_name , write__):    # in the beginning it's '0'
 
 def read_error(file_name):   
     error__ = open(file_name , 'r')
-    return int(error__.read() )
+    readMe = error__.read()
+    error__.close()
+    return int( readMe )
 
 
 
@@ -424,7 +429,9 @@ def write_delay(file_name , writeDelay):    # in the beginning 'writeDelay' must
 
 def changeDelayOnceRead(file_name): 
     once = open(file_name , 'r')
-    return int( once.read() )
+    readMe = once.read()
+    once.close()
+    return int( readMe )
 
 
 
@@ -438,14 +445,18 @@ def writeNumOfErrors(file_name , number):
 
 def readNumOfErrors(file_name):
     read_err = open(file_name , 'r')
-    return int( read_err.read() )
+    readMe = read_err.read()
+    read_err.close()
+    return int( readMe )
 
 
 
 
 def readTotalUpdates():
     read_update = open("totalUpdates.txt" , 'r')
-    return int( read_update.read() )
+    readMe = read_update.read()
+    read_update.close()
+    return int( readMe )
 
 
 
@@ -469,9 +480,10 @@ def error_and_back_to_internet():
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
                 __internetStatusError__Write("internet_statusError.txt" , 0)
                 time_correction()
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt").read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
                 print("Sent email due to network disconnection... > " + hour__ + ":" + min__ + ":" + sec__)
+                open("internet_error_DATE.txt").close()
                 break
 
 
@@ -487,7 +499,8 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("          -> APPLICATION STARTED <-\n===============================================")
+    print("          -> APPLICATION STARTED <-\n===============================================\nLast update: " + last_update + \
+    "         Source: GitHub" + "\n===============================================")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
     driver.get(link_site)               # open car.gr site
@@ -546,9 +559,13 @@ try:
             machinesEachUpdate[i] = int(fileEach.readline())
             line = linecache.getline("MachinesEachUpdate.txt" , i+1)
     line = linecache.getline("MachinesEachUpdate.txt" , 0)
+
     with open("totalUpdates.txt") as fileTotal:
         totalUpdates = int(fileTotal.read())
-    
+        fileTotal.close()
+    open("MachinesEachUpdate.txt").close()
+
+
     # main loop
     while(True):    
         current_time = datetime.datetime.now().time()   # get current time
@@ -562,6 +579,7 @@ try:
                 with open("updateNumber.txt") as file:
                     currentPosUpdate = int(file.read())  # read the number from file
                     driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
+                open("updateNumber.txt").close()
 
                 error_and_back_to_internet()
                 global updateMachine
@@ -576,12 +594,13 @@ try:
                 machinesEachUpdate[currentPosUpdate] += 1
                 with open("updateNumber.txt" , 'r') as file:
                     replace_line("MachinesEachUpdate.txt" , int( file.read() ) , machinesEachUpdate)
+                open("updateNumber.txt").close()
                 
                 totalUpdates += 1
                 with open("totalUpdates.txt" , 'w') as fileTotal:
                     fileTotal.write(str(totalUpdates))   # write the number in the file
                     fileTotal.flush() 
-                
+                    fileTotal.close()
                 
                 with open("totalUpdates.txt" , 'r') as fileTotal_R:
                     time_correction()
@@ -624,7 +643,8 @@ try:
                                             + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
-                        
+                        fileTotal_R.close()
+
                         print("Running... >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
                     now = datetime.datetime.now()
                     time_correction()
@@ -633,19 +653,20 @@ try:
                         print("0" + open("totalUpdates.txt").read())
                     else:
                         print(open("totalUpdates.txt").read())
-
+                    open("totalUpdates.txt").close()
                  
                 currentPosUpdate += 1       # increase current position of machine update
                 with open("updateNumber.txt" , 'w') as file:
                     file.write(str(currentPosUpdate))   # write the number in the file
                     file.flush()    
-                
+                    file.close()
 
             if(currentPosUpdate == read_NumberOfMachines("NumberOfMachines.txt")):  # if update of all machines finished
                 currentPosUpdate = 0                    # start again
                 file = open("updateNumber.txt", "w")    # open the file
                 file.write(str(currentPosUpdate))   # write the number in the file
                 file.flush() 
+                file.close()
 
             if( read_error("run_after_error.txt") == 1 ):
                 now = datetime.datetime.now()
@@ -667,7 +688,7 @@ try:
                 for i in range( 1 ,  int( open("delay.txt").read() )):   # sleeping... & checking for network disconnection
                     time.sleep(1)
                     error_and_back_to_internet()
-
+                open("delay.txt").close()
             
 
         elif(current_time > off_time):
@@ -684,12 +705,14 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                                          + "Written in Python" , ToMe)
-                    send_email("'www.car.gr' Update ~ " + str_date , open("totalUpdates.txt").read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                                          + "Written in Python" , ToOther)
-                    print("Emails just sent... Purpose: " + str(open("totalUpdates.txt").read()) + " updates were performed successfully.")
-                
+                    print("Emails just sent... Purpose: " + str(fileTotal.read()) + " updates were performed successfully.")
+                    fileTotal.close()
+                    fileEach.close()
+
                 # reset all files for the new day    
                 
                 if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
@@ -750,6 +773,7 @@ except OSError:
     current_time = datetime.datetime.now().time()   # get current time
     if(not current_time < on_time and not current_time >= off_time):
         read_TXT_FILE_from_gmail()
+
     # close all files...
     open("change_delay_once.txt").close()
     open("delay.txt").close()
@@ -794,5 +818,8 @@ except: # if anything is wrong
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
+            file.close()
+
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
