@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Nov 04 2022 -> update the variable 'last_update' below
+# --------------- Last update: Nov 05 2022 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Nov 04 2022"                                                   # Manual
+last_update = "Nov 05 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -499,7 +499,7 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("          -> APPLICATION STARTED <-\n===============================================\nLast update: " + last_update + \
+    print("        ~~~~> APPLICATION STARTED <~~~~\n===============================================\nLast update: " + last_update + \
     "         Source: GitHub" + "\n===============================================")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
