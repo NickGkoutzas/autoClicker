@@ -284,7 +284,7 @@ def read_TXT_FILE_from_gmail():
                     date_of_email_update += str(email_date[_string_])
 
                 print(bodyOfFile + "   " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")))
-                if(date_of_email_update == dateOfToday and not str(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
+                if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
@@ -295,7 +295,7 @@ def read_TXT_FILE_from_gmail():
                     send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
 
                     print("===============================================")
-                    time.sleep(7)  # sleep for 7 minutes
+                    time.sleep(7 * 60)  # sleep for 7 minutes
                     print("The new version is currently being downloaded and will be run at a moment...")
                     os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/carClicker.py' && mv carClicker.py.1 carClicker.py")
                     driver.quit()   # quit firefox
