@@ -283,12 +283,10 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 15):
                     date_of_email_update += str(email_date[_string_])
 
-                print(bodyOfFile + "   " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")))
                 if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
-                    print(bodyOfFile + "   " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")))
                     print("===============================================")
                     print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
                     send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
@@ -501,8 +499,9 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("        ~~~~> APPLICATION STARTED <~~~~\n===============================================\nLast update: " + last_update + \
-    "         Source: GitHub" + "\n===============================================")
+    print("          ~> APPLICATION STARTED <~\n===============================================\n" + \
+    "               Made with Python\n===============================================\nLast update: " + last_update + \
+    "         Source: GitHub" + "\n===============================================\n")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
     driver.get(link_site)               # open car.gr site
