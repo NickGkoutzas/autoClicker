@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Nov 05 2022 -> update the variable 'last_update' below
+# --------------- Last update: Nov 06 2022 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Nov 05 2022"                                                   # Manual
+last_update = "Nov 06 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -286,7 +286,7 @@ def read_TXT_FILE_from_gmail():
                 if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
-                    write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase update number (GitHub upates) by 1
+                    write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
                     print("===============================================")
                     print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
                     send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
@@ -358,9 +358,8 @@ def __totalErrorsOfDay__R(file_name):
 
 
 def __totalErrorsOfDay__W(file_name):
-    numOfErrors = int( __totalErrorsOfDay__R(file_name) )
-    numOfErrors += 1
-    errors__ = open(file_name , 'w')
+    errors__ = open(file_name , 'r+')
+    numOfErrors = int( errors__.read() ) + 1
     errors__.write( str(numOfErrors) )
     errors__.flush()
     errors__.close()
@@ -805,6 +804,23 @@ except OSError:
 
 except: # if anything is wrong
     print("===============================================\nAn error occured. Trying again. Loading...\n===============================================\n")
+
+    # close all files...
+    open("change_delay_once.txt").close()
+    open("delay.txt").close()
+    open("internet_error_DATE.txt").close()
+    open("internet_statusError.txt").close()
+    open("let_20_errors_happen.txt").close()
+    open("MachinesEachUpdate.txt").close()
+    open("NumberOfMachines.txt").close()
+    open("run_after_error.txt").close()
+    open("totalErrors.txt").close()
+    open("totalUpdates.txt").close()
+    open("updateNumber.txt").close()
+    open("URL_machines.txt").close()
+    open("GitHubUpdatesNumber.txt").close()
+    open("passwords.txt").close()
+    
     __totalErrorsOfDay__W("totalErrors.txt")
     writeNumOfErrors("let_20_errors_happen.txt" , readNumOfErrors("let_20_errors_happen.txt") + 1)
     current_time = datetime.datetime.now().time()   # get current time
