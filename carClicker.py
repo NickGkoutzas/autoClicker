@@ -498,7 +498,7 @@ driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide 
 
 try:
     error_and_back_to_internet()
-    print("          ~> APPLICATION STARTED <~\n===============================================\n" + \
+    print("          -> APPLICATION STARTED <-\n===============================================\n" + \
     "               Made with Python\n===============================================\nLast update: " + last_update + \
     "         Source: GitHub" + "\n===============================================\n")
     print("Opening 'www.car.gr' page...") 
