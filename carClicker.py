@@ -649,7 +649,7 @@ try:
                     if( int(fileTotal_R.read()) == 1):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br><br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
@@ -671,7 +671,7 @@ try:
                                         "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file.<br>" \
                                         "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
-                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br><br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
