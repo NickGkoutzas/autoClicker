@@ -304,7 +304,7 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
                 
-                if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
+                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
@@ -333,7 +333,7 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
                 
-                if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") and filename__ == "feedback.txt"):
+                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") + 1 and filename__ == "feedback.txt"):
                     time_correction()
                     print("===============================================")
                     print("Sending email feedback from 'www.car.gr' due to request")
@@ -345,7 +345,6 @@ def read_TXT_FILE_from_gmail():
                     " of the day.<br>" + " <br>Current number of updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
                     write_FeedbackNumber("read_feedbackNumber.txt" , read_GitHubUpdatesNumber("read_feedbackNumber.txt") + 1 ) # increase 'feedback' number by 1
-
 
 
 
