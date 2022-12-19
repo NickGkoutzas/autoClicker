@@ -650,7 +650,7 @@ try:
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                         send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                         "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
@@ -672,7 +672,7 @@ try:
                                         "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
                         send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                         "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
@@ -757,9 +757,9 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                                          + "Written in Python" , ToMe)
-                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                                          + "Written in Python" , ToOther)
                     print("Emails just sent... Purpose: " + str(fileTotal.read()) + " updates were performed successfully.")
                     fileTotal.close()
