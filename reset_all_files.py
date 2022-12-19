@@ -69,3 +69,8 @@ internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
 internet_err_DATE_file.write( str(0) )
 internet_err_DATE_file.flush()
 internet_err_DATE_file.close()
+
+feedback_number = open("read_feedbackNumber.txt" , 'w')
+feedback_number.write( str(0) )
+feedback_number.flush()
+feedback_number.close()

@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------By
-# --------------- Last update: Nov 06 2022 -> update the variable 'last_update' below
+# --------------- Last update: Dec 19 2022 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Nov 06 2022"                                                   # Manual
+last_update = "Dec 19 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -184,7 +184,28 @@ def read_GitHubUpdatesNumber(file_name):
 
 
 
+def read_feedbackNumber(file_name):
+    file_ = open(file_name , 'r')
+    number = file_.read()
+    file_.close()
+    return int(number)
+
+
+
+
+
+
+
 def write_GitHubUpdatesNumber(file_name , number):
+    file_w = open(file_name , 'w')
+    file_w.write(str(number))
+    file_w.flush()
+    file_w.close()
+
+
+
+
+def write_FeedbackNumber(file_name , number):
     file_w = open(file_name , 'w')
     file_w.write(str(number))
     file_w.flush()
@@ -213,13 +234,13 @@ def read_TXT_FILE_from_gmail():
                 msg = email.message_from_string(str(arr[1],'utf-8'))
                 email_subject = msg['subject']
                 email_date = msg['Date']
-                
+
         for part in msg.walk():
             filename__ = part.get_filename()
             if filename__:
                 bodyOfFile = part.get_payload(decode=True).decode()
                 bodyOfFile = bodyOfFile.replace("\n","")
-
+        
 
         if(not "20 errors occured" in email_subject):
             if(email_subject == "delete" or email_subject == "Delete"):
@@ -280,9 +301,9 @@ def read_TXT_FILE_from_gmail():
                 dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
                 date_of_email_update = ''
 
-                for _string_ in range(5 , 15):
+                for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
-
+                
                 if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
@@ -302,6 +323,28 @@ def read_TXT_FILE_from_gmail():
                     os.system("python3 carClicker.py")
 
 
+            if(email_subject == "feedback" or email_subject == "Feedback"):
+                now = datetime.datetime.now()
+                
+                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                date_of_email_update = ''
+
+                for _string_ in range(5 , 16):
+                    date_of_email_update += str(email_date[_string_])
+                
+                if(date_of_email_update == dateOfToday and not int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") and filename__ == "feedback.txt"):
+                    time_correction()
+                    print("===============================================")
+                    print("Sending email feedback from 'www.car.gr' due to request")
+                    print("===============================================")
+                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
+                    " of the day.<br>" + " <br>Current number of updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    "<br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
+                    " of the day.<br>" + " <br>Current number of updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    "<br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+                    write_FeedbackNumber("read_feedbackNumber.txt" , read_GitHubUpdatesNumber("read_feedbackNumber.txt") + 1 ) # increase 'feedback' number by 1
 
 
 
@@ -489,7 +532,6 @@ def error_and_back_to_internet():
 
 
 
-
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
@@ -607,39 +649,49 @@ try:
                     if( int(fileTotal_R.read()) == 1):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br><br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 5 + \
-                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
+                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 5 + \
-                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
-                                        "* Update the current version of program from<br>" + "&nbsp;" * 5 + "GitHub?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 6 + \
-                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 5 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
-                                        "Remember to add the extension" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>" \
-                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt).<br>You'll receive a notification of your action, if everything goes well.<br><br>" + "&nbsp;" * 60\
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
+                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
+                                        "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                        "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                        
+                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file.<br>" \
+                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
-                        send_email("Updates started" , "This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
+                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br><br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>(URL-LINK) or update the current version of application from GitHub,<br>follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 5 + \
-                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to add.<br><br> \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
+                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 5 + \
-                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 5 +" contains the link-machine you want to delete.<br><br>" \
-                                        "* Update the current version of program from<br>" + "&nbsp;" * 5 + "GitHub?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 5 + \
-                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 6 + \
-                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 5 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
-                                        "Remember to add the extension" + "&nbsp;" * 5 + "'.txt'" +"&nbsp;" * 5 + "at the end of file.<br>" \
-                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt).<br>You'll receive a notification of your action, if everything goes well.<br><br>" + "&nbsp;" * 60\
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
+                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
+                                        "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                        "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
+                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                        
+                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file.<br>" \
+                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
@@ -754,6 +806,11 @@ try:
                 fileGitHub.flush()
                 fileGitHub.close()
 
+                fileGitHub = open("read_feedbackNumber.txt" , 'w')
+                fileGitHub.write( str(0) )
+                fileGitHub.flush()
+                fileGitHub.close()
+
                 # executes only once per day...
                 print("Sleeping till next day...")
                 time.sleep(10*60)
@@ -779,6 +836,7 @@ except OSError:
     open("delay.txt").close()
     open("internet_error_DATE.txt").close()
     open("internet_statusError.txt").close()
+    open("read_feedbackNumber.txt").close()
     open("let_20_errors_happen.txt").close()
     open("MachinesEachUpdate.txt").close()
     open("NumberOfMachines.txt").close()
@@ -810,6 +868,7 @@ except: # if anything is wrong
     open("delay.txt").close()
     open("internet_error_DATE.txt").close()
     open("internet_statusError.txt").close()
+    open("read_feedbackNumber.txt").close()
     open("let_20_errors_happen.txt").close()
     open("MachinesEachUpdate.txt").close()
     open("NumberOfMachines.txt").close()
@@ -818,6 +877,7 @@ except: # if anything is wrong
     open("totalUpdates.txt").close()
     open("updateNumber.txt").close()
     open("URL_machines.txt").close()
+    
     open("GitHubUpdatesNumber.txt").close()
     open("passwords.txt").close()
     
