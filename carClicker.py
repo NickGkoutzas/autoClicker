@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------By
-# --------------- Last update: Dec 19 2022 -> update the variable 'last_update' below
+# --------------- Last update: Dec 29 2022 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
