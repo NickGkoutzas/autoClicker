@@ -192,7 +192,19 @@ def read_feedbackNumber(file_name):
 
 
 
+def read_resetNumber(file_name):
+    file_ = open(file_name , 'r')
+    number = file_.read()
+    file_.close()
+    return int(number)
 
+
+
+def write_resetNumber(file_name , number):
+    file_w = open(file_name , 'w')
+    file_w.write(str(number))
+    file_w.flush()
+    file_w.close()
 
 
 
@@ -357,14 +369,41 @@ def read_TXT_FILE_from_gmail():
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
-                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: "+ hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
                                         
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
-                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: "+ hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+
+
+            if(email_subject == "hardreset" or email_subject == "Hardreset"):
+                now = datetime.datetime.now()
+                
+                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                date_of_email_update = ''
+
+                for _string_ in range(5 , 16):
+                    date_of_email_update += str(email_date[_string_])
+                
+                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_resetNumber("read_resetNumber.txt") + 1 and filename__ == "hardreset.txt"):
+                    write_resetNumber("read_resetNumber.txt" , read_resetNumber("read_resetNumber.txt") + 1)
+                    time_correction()
+                    print("===============================================")
+                    print("Hard reset all files...\nRestart the app.")
+                    print("===============================================")
+
+                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+
+                    reset_files(False)
+
+                    driver.quit()   # quit firefox
+                    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
 
 
 
@@ -549,6 +588,65 @@ def error_and_back_to_internet():
 
 
 
+
+def reset_files(allFiles):
+    if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
+        os.remove(PATH_NAME + "geckodriver.log")
+            
+    file = open("updateNumber.txt", "w")    # open the file
+    file.write(str(0))   # write the number in the file
+    file.flush() 
+    file.close()
+
+    fileTotal = open("totalUpdates.txt", "w")    # open the file
+    fileTotal.write(str(0))   # write the number in the file
+    fileTotal.flush()
+    fileTotal.close()
+
+    fileEach = open("MachinesEachUpdate.txt" , "w")
+    for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt")):
+        fileEach.write(str(0) + "\n")
+    fileEach.close()
+
+
+    changeDelayOnceWrite("change_delay_once.txt" , 1)
+    writeNumOfErrors("let_20_errors_happen.txt" , 0)
+    write_delay("delay.txt" , 5)
+    write_error("run_after_error.txt" , 0)
+    __internetStatusError__Write("internet_statusError.txt" , 0)
+
+    errors__ = open("totalErrors.txt" , 'w')
+    errors__.write( str(0) )
+    errors__.flush()
+    errors__.close()
+
+    internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
+    internet_err_DATE_file.write( str(0) )
+    internet_err_DATE_file.flush()
+    internet_err_DATE_file.close()
+
+    if(allFiles):
+        fileGitHub = open("GitHubUpdatesNumber.txt" , 'w')
+        fileGitHub.write( str(0) )
+        fileGitHub.flush()
+        fileGitHub.close()
+
+        fileGitHub = open("read_feedbackNumber.txt" , 'w')
+        fileGitHub.write( str(0) )
+        fileGitHub.flush()
+        fileGitHub.close()
+        
+        filereset = open("read_resetNumber.txt" , 'w')
+        filereset.write( str(0) )
+        filereset.flush()
+        filereset.close()
+
+
+
+
+
+
+
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
@@ -670,12 +768,12 @@ try:
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
-                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
-                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
+                                                "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
-                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
-                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
+                                                "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
@@ -684,20 +782,24 @@ try:
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
-                                        
+                                        "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
+                                        "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                    
                                         "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
-                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
+                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
                         send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
-                                                        "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
-                                                        "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
+                                                "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
-                                                        "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
-                                                        "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
+                                                "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
@@ -706,9 +808,13 @@ try:
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
-                                        
+                                        "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
+                                        "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
+                                                "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                    
                                         "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
-                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
+                                        "Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt' or 'update.txt' or<br>'feedback.txt' or 'hardreset.txt'.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
@@ -783,50 +889,8 @@ try:
                     fileEach.close()
 
                 # reset all files for the new day    
+                reset_files(True)
                 
-                if(os.path.exists(PATH_NAME + "geckodriver.log")):   # file path may not be the same
-                    os.remove(PATH_NAME + "geckodriver.log")
-                file = open("updateNumber.txt", "w")    # open the file
-                file.write(str(0))   # write the number in the file
-                file.flush() 
-                file.close()
-
-                fileTotal = open("totalUpdates.txt", "w")    # open the file
-                fileTotal.write(str(0))   # write the number in the file
-                fileTotal.flush()
-                fileTotal.close()
-
-                fileEach = open("MachinesEachUpdate.txt" , "w")
-                for i in range(0 , read_NumberOfMachines("NumberOfMachines.txt")):
-                    fileEach.write(str(0) + "\n")
-                fileEach.close()
-
-
-                changeDelayOnceWrite("change_delay_once.txt" , 1)
-                writeNumOfErrors("let_20_errors_happen.txt" , 0)
-                write_delay("delay.txt" , 5)
-                write_error("run_after_error.txt" , 0)
-                __internetStatusError__Write("internet_statusError.txt" , 0)
-
-                errors__ = open("totalErrors.txt" , 'w')
-                errors__.write( str(0) )
-                errors__.flush()
-                errors__.close()
-
-                internet_err_DATE_file = open("internet_error_DATE.txt" , 'w')
-                internet_err_DATE_file.write( str(0) )
-                internet_err_DATE_file.flush()
-                internet_err_DATE_file.close()
-
-                fileGitHub = open("GitHubUpdatesNumber.txt" , 'w')
-                fileGitHub.write( str(0) )
-                fileGitHub.flush()
-                fileGitHub.close()
-
-                fileGitHub = open("read_feedbackNumber.txt" , 'w')
-                fileGitHub.write( str(0) )
-                fileGitHub.flush()
-                fileGitHub.close()
 
                 # executes only once per day...
                 print("Sleeping till next day...")
@@ -917,3 +981,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+

@@ -74,3 +74,8 @@ feedback_number = open("read_feedbackNumber.txt" , 'w')
 feedback_number.write( str(0) )
 feedback_number.flush()
 feedback_number.close()
+
+reset_number = open("read_resetNumber.txt" , 'w')
+reset_number.write( str(0) )
+reset_number.flush()
+reset_number.close()
