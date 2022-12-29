@@ -646,7 +646,7 @@ def reset_files(allFiles):
 
 
 
-
+'''
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
@@ -880,9 +880,9 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + str(fileTotal.read()) + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                             + "Written in Python" , ToMe)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + str(fileTotal.read()) + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                             + "Written in Python" , ToOther)
                     print("Emails just sent... Purpose: " + str(fileTotal.read()) + " updates were performed successfully.")
                     fileTotal.close()
@@ -982,3 +982,25 @@ except: # if anything is wrong
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
     
+'''
+all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
+line = linecache.getline("MachinesEachUpdate.txt" , 0)
+k = 0
+with open("totalUpdates.txt") as fileTotal , open("MachinesEachUpdate.txt") as fileEach:
+    for line in fileEach.readlines():
+        if(k + 1 < 10):
+            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>"  
+        else:
+            all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>" 
+        k += 1
+        line = linecache.getline("MachinesEachUpdate.txt" , k+1)
+    today = date.today()
+    successful_updates_of_day = str(fileTotal.read())
+    str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
+    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+            + "Written in Python" , ToMe)
+    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+            + "Written in Python" , ToOther)
+    print("Emails just sent... Purpose: " + successful_updates_of_day + " updates were performed successfully.")
+    fileTotal.close()
+    fileEach.close()
