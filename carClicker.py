@@ -349,7 +349,7 @@ def read_TXT_FILE_from_gmail():
                         numberOfInsertion = file_insert.read()
                         file_insert.close()
                     
-                    
+                    write_FeedbackNumber("read_feedbackNumber.txt" , read_feedbackNumber("read_feedbackNumber.txt") + 1)
                     time_correction()
                     print("===============================================")
                     print("Sending email feedback from 'www.car.gr' due to request")
