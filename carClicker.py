@@ -100,7 +100,7 @@ def delete_from_URL_MACHINES_FILE(file__ , URL):
 
 
 
-totalUpdateOfTheDay = 200
+dailyTotalUpdates = 200
 __readTotalUpdates__ = open("totalUpdates.txt" , 'r')
 ___readTotalUpdates___ = __readTotalUpdates__.read()
 __readTotalUpdates__.close()
@@ -419,7 +419,7 @@ def updatesStartedAt():
 
 
 def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
-    global totalUpdateOfTheDay
+    global dailyTotalUpdates
     now = datetime.datetime.now()
     currentTime = datetime.datetime(now.year, now.month , now.day , now.hour , now.minute , now.second)
     finalTime = datetime.datetime(now.year, now.month , now.day , endTimeHours , endTimeMinutes , endTimeSeconds)
@@ -427,7 +427,7 @@ def computeDelay(endTimeHours , endTimeMinutes , endTimeSeconds):
     readTotalUpdates___ = open("totalUpdates.txt" , 'r')
     readTotalUpdates____ = readTotalUpdates___.read()
     readTotalUpdates___.close()
-    return int ( ( ( ( int(difference.total_seconds() ) / 60 ) / (totalUpdateOfTheDay - int( readTotalUpdates____ ) ) ) * 60 ) - 10 )  # in seconds
+    return int ( ( ( ( int(difference.total_seconds() ) / 60 ) / (dailyTotalUpdates - int( readTotalUpdates____ ) ) ) * 60 ) - 10 )  # in seconds
 
 
 
@@ -612,7 +612,7 @@ try:
 
         if(not current_time < on_time and not current_time >= off_time):
             
-            if( readTotalUpdates() < totalUpdateOfTheDay ):
+            if( readTotalUpdates() < dailyTotalUpdates ):
                 read_TXT_FILE_from_gmail() # check if the user of the site sent an email...
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
 
@@ -728,13 +728,13 @@ try:
                 print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
             
             
-            if(readTotalUpdates() == totalUpdateOfTheDay ):
-                print( str(totalUpdateOfTheDay) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
+            if(readTotalUpdates() == dailyTotalUpdates ):
+                print( str(dailyTotalUpdates) + " updates have been performed before 23:55:00 .Sleeping till 23:55:00 ...")
                 sleep__ = computeTimeSleep(23 , 55 , 0)
                 time.sleep(sleep__)
             
 
-            elif (readTotalUpdates() < totalUpdateOfTheDay ):
+            elif (readTotalUpdates() < dailyTotalUpdates ):
                 for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection   
                     time.sleep(1)
                     error_and_back_to_internet()
@@ -755,9 +755,9 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/200<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                             + "Written in Python" , ToMe)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/200<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
                             + "Written in Python" , ToOther)
                     print("Emails just sent... Purpose: " + str(fileTotal.read()) + " updates were performed successfully.")
                     fileTotal.close()
@@ -818,6 +818,7 @@ try:
                 driver.quit()   # quit firefox
                 os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
                 
+
 
 
 except OSError:
