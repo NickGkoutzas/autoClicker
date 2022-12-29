@@ -765,7 +765,7 @@ try:
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
                         send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
+                                            "<br><br>Note:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
@@ -791,7 +791,7 @@ try:
                                         "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
                         send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
-                                            "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
+                                            "<br><br>Note:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
@@ -814,7 +814,7 @@ try:
                                                 "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                     
                                         "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
-                                        "Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt' or 'update.txt' or<br>'feedback.txt' or 'hardreset.txt'.<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
+                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
@@ -981,4 +981,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-
+    
