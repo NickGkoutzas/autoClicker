@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Dec 19 2022"                                                   # Manual
+last_update = "Dec 29 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -530,7 +530,6 @@ def error_and_back_to_internet():
 
 
 
-
 options = Options()
 options.add_argument('--headless')
 error_and_back_to_internet()
@@ -648,7 +647,7 @@ try:
                     if( int(fileTotal_R.read()) == 1):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
@@ -667,10 +666,10 @@ try:
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                         
-                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file.<br>" \
-                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
+                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
+                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
-                        send_email("Updates started" , "Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert or delete a machine<br>or update the current version of application from GitHub or request for a feedback,<br>then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
@@ -689,8 +688,8 @@ try:
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                         
-                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file.<br>" \
-                                        "Pay attention to the name of the file<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
+                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
+                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
@@ -756,10 +755,10 @@ try:
                         line = linecache.getline("MachinesEachUpdate.txt" , k+1)
                     today = date.today()
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python" , ToMe)
-                    send_email("'www.car.gr' Update ~ " + str_date , fileTotal.read() + " updates were performed successfully.<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                                         + "Written in Python" , ToOther)
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/200<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                            + "Written in Python" , ToMe)
+                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + fileTotal.read() + "/200<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                            + "Written in Python" , ToOther)
                     print("Emails just sent... Purpose: " + str(fileTotal.read()) + " updates were performed successfully.")
                     fileTotal.close()
                     fileEach.close()
