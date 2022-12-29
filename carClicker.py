@@ -310,8 +310,8 @@ def read_TXT_FILE_from_gmail():
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
                     print("===============================================")
                     print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
-                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
-                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
 
                     print("===============================================")
                     time.sleep(7 * 60)  # sleep for 7 minutes
@@ -334,18 +334,37 @@ def read_TXT_FILE_from_gmail():
                     date_of_email_update += str(email_date[_string_])
                 
                 if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") + 1 and filename__ == "feedback.txt"):
+                    
+                    numberOfDeletion = 0
+                    deleteFilenamePath = PATH_NAME + "delete.txt"
+                    if( os.path.exists(deleteFilenamePath) ):
+                        file_del = open(deleteFilenamePath , 'r')
+                        numberOfDeletion = file_del.read()
+                        file_del.close()
+
+                    numberOfInsertion = 0
+                    insertionFilenamePath = PATH_NAME + "insert.txt"
+                    if( os.path.exists(insertionFilenamePath) ):
+                        file_insert = open(insertionFilenamePath , 'r')
+                        numberOfInsertion = file_insert.read()
+                        file_insert.close()
+                    
+                    
                     time_correction()
                     print("===============================================")
                     print("Sending email feedback from 'www.car.gr' due to request")
                     print("===============================================")
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
-                    " of the day.<br>" + " <br>Current number of updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
-                    "<br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
+                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                    "<br><br>App is currently running normally.<br>Time of request: "+ hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                                        
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
-                    " of the day.<br>" + " <br>Current number of updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
-                    "<br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
-                    write_FeedbackNumber("read_feedbackNumber.txt" , read_GitHubUpdatesNumber("read_feedbackNumber.txt") + 1 ) # increase 'feedback' number by 1
-
+                    " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
+                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                    "<br><br>App is currently running normally.<br>Time of request: "+ hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
 
 
 
