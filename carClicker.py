@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------By
-# --------------- Last update: Dec 29 2022 -> update the variable 'last_update' below
+# --------------- Last update: Dec 31 2022 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Dec 29 2022"                                                   # Manual
+last_update = "Dec 31 2022"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -322,8 +322,12 @@ def read_TXT_FILE_from_gmail():
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
                     print("===============================================")
                     print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
-                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
-                    send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
+                    if( int(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) == 1 ):
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                    else:
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>You created a new version " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
 
                     print("===============================================")
                     time.sleep(7 * 60)  # sleep for 7 minutes
@@ -366,13 +370,13 @@ def read_TXT_FILE_from_gmail():
                     print("===============================================")
                     print("Sending email feedback from 'www.car.gr' due to request")
                     print("===============================================")
-                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
+                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToMe)
                                         
-                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt") + 1) +\
+                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
@@ -764,7 +768,7 @@ try:
                     if( int(fileTotal_R.read()) == 1):
                         today = date.today()
                         str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                        send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
@@ -790,7 +794,7 @@ try:
                                         "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
                                         "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "&nbsp;" * 60\
                                             + "Written in Python" , ToMe)
-                        send_email("Updates started" , "Let everything to Python!<br><br>Info:<br>Last GitHub update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
+                        send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Note:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
