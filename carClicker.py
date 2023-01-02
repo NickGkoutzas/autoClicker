@@ -254,8 +254,7 @@ def read_TXT_FILE_from_gmail():
                 bodyOfFile = bodyOfFile.replace("\n","")
         
 
-        if(not "20 errors occured" in email_subject):
-            if(email_subject == "delete" or email_subject == "Delete"):
+        if(email_subject == "delete" or email_subject == "Delete"):
                 exists = 0
                 listOfURLs = []
                 readMe = open("URL_machines.txt" , 'r')
@@ -289,7 +288,7 @@ def read_TXT_FILE_from_gmail():
 
 
 
-            if(email_subject == "insert" or email_subject == "Insert"):
+        if(email_subject == "insert" or email_subject == "Insert"):
                 now = datetime.datetime.now()
                 time_correction()
                 if(not str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "insert.txt"):
@@ -307,7 +306,7 @@ def read_TXT_FILE_from_gmail():
 
 
 
-            if(email_subject == "update" or email_subject == "Update"):
+        if(email_subject == "update" or email_subject == "Update"):
                 now = datetime.datetime.now()
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
                 dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
@@ -342,7 +341,7 @@ def read_TXT_FILE_from_gmail():
                     os.system("python3 carClicker.py")
 
 
-            if(email_subject == "feedback" or email_subject == "Feedback"):
+        if(email_subject == "feedback" or email_subject == "Feedback"):
                 now = datetime.datetime.now()
                 
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
@@ -389,7 +388,7 @@ def read_TXT_FILE_from_gmail():
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python", ToOther)
 
 
-            if(email_subject == "hardreset" or email_subject == "Hardreset"):
+        if(email_subject == "hardreset" or email_subject == "Hardreset"):
                 now = datetime.datetime.now()
                 
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
@@ -873,7 +872,7 @@ try:
             
 
             elif (readTotalUpdates() < dailyTotalUpdates ):
-                for i in range( 1 ,  5):   # sleeping... & checking for network disconnection    int( open("delay.txt").read() )
+                for i in range( 1 ,  int( open("delay.txt").read() )):   # sleeping... & checking for network disconnection
                     time.sleep(1)
                     error_and_back_to_internet()
                 open("delay.txt").close()
@@ -998,3 +997,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
