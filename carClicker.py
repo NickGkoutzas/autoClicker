@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------By
-# --------------- Last update: Dec 31 2022 -> update the variable 'last_update' below
+# --------------- Last update: Jan 02 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Dec 31 2022"                                                   # Manual
+last_update = "Jan 02 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -232,7 +232,7 @@ def read_TXT_FILE_from_gmail():
     mail = imaplib.IMAP4_SSL(SMTP_SERVER)
     mail.login(FROM_EMAIL , FROM_PWD)
     mail.select('inbox')
-    
+
     data = mail.search(None, 'ALL')
     mail_ids = data[1]
     id_list = mail_ids[0].split()   
@@ -316,6 +316,9 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
                 
+                date_of_email_update = "".join(date_of_email_update.split())
+                dateOfToday = "".join(dateOfToday.split())
+
                 if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 and filename__ == "update.txt"):
                     now = datetime.datetime.now()
                     time_correction()
@@ -349,8 +352,11 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
                 
+                date_of_email_update = "".join(date_of_email_update.split())
+                dateOfToday = "".join(dateOfToday.split())
+
                 if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") + 1 and filename__ == "feedback.txt"):
-                    
+
                     numberOfDeletion = 0
                     deleteFilenamePath = PATH_NAME + "delete.txt"
                     if( os.path.exists(deleteFilenamePath) ):
@@ -393,6 +399,9 @@ def read_TXT_FILE_from_gmail():
                 for _string_ in range(5 , 16):
                     date_of_email_update += str(email_date[_string_])
                 
+                date_of_email_update = "".join(date_of_email_update.split())
+                dateOfToday = "".join(dateOfToday.split())
+
                 if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_resetNumber("read_resetNumber.txt") + 1 and filename__ == "hardreset.txt"):
                     write_resetNumber("read_resetNumber.txt" , read_resetNumber("read_resetNumber.txt") + 1)
                     time_correction()
@@ -864,7 +873,7 @@ try:
             
 
             elif (readTotalUpdates() < dailyTotalUpdates ):
-                for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection   
+                for i in range( 1 ,  5):   # sleeping... & checking for network disconnection    int( open("delay.txt").read() )
                     time.sleep(1)
                     error_and_back_to_internet()
                 open("delay.txt").close()
@@ -911,9 +920,10 @@ try:
 
 except OSError:
     print("===============================================\nAn OS error occured. Trying again. Loading...\n===============================================\n")
-    
-    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-    send_email("WARNING !!! 'carClicker' app stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    now = datetime.datetime.now()
+    time_correction()
+    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
     current_time = datetime.datetime.now().time()   # get current time
     if(not current_time < on_time and not current_time >= off_time):
         read_TXT_FILE_from_gmail()
@@ -977,8 +987,10 @@ except: # if anything is wrong
         with open("updateNumber.txt") as file:
             today = date.today()
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues." + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
+            now = datetime.datetime.now()
+            time_correction()
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToMe)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "&nbsp;" * 60 + "Written in Python" , ToOther)
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
@@ -986,4 +998,3 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-    
