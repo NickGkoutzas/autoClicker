@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Jan 03 2023 -> update the variable 'last_update' below
+# --------------- Last update: Jan 04 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Jan 03 2023"                                                   # Manual
+last_update = "Jan 04 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -893,10 +893,12 @@ try:
                     today = date.today()
                     successful_updates_of_day = str(fileTotal.read())
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                            + "Written in Python" , ToMe)
-                    send_email("Statistical results for \"car.gr\"" , "Date: " + str_date + "<br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
-                            + "Written in Python" , ToOther)
+
+                    analytics = "https://www.car.gr/analytics/overview?date-from=1644962400&date-to=1644993347&fbclid=IwAR0PP4jRq9XOQROeGJIRON7gSMOO4RPUDBAEiJXrPPhg44pTBiZNRsS6vz4"
+                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    + "Written in Python" , ToMe)
+                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "&nbsp;" * 60\
+                    + "Written in Python" , ToOther)
                     print("Emails just sent... Purpose: " + successful_updates_of_day + " updates were performed successfully.")
                     fileTotal.close()
                     fileEach.close()
@@ -998,3 +1000,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
