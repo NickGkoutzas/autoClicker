@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------By
-# --------------- Last update: Jan 02 2023 -> update the variable 'last_update' below
+# --------------- Last update: Jan 03 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Jan 02 2023"                                                   # Manual
+last_update = "Jan 03 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -779,23 +779,23 @@ try:
                         send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Notes:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
-                                        "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                        "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                     
@@ -805,23 +805,23 @@ try:
                         send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Notes:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (insert.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (delete.txt) that <br>" + "&nbsp;" * 4 + " contains the link-machine you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
-                                                "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                                "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
-                                        "Send an email to " + str(ToMe) + "<br>" + "&nbsp;" * 4 + \
+                                        "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
                                     
@@ -956,6 +956,7 @@ except OSError:
 
 
 
+
 except: # if anything is wrong
     print("===============================================\nAn error occured. Trying again. Loading...\n===============================================\n")
 
@@ -997,4 +998,3 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-
