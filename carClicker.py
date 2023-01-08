@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Jan 07 2023 -> update the variable 'last_update' below
+# --------------- Last update: Jan 09 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Jan 07 2023"                                                   # Manual
+last_update = "Jan 09 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -248,13 +248,22 @@ def read_TXT_FILE_from_gmail():
                 email_date = msg['Date']
 
         for part in msg.walk():
-            filename__ = part.get_filename()
-            if filename__:
-                bodyOfFile = part.get_payload(decode=True).decode()
-                bodyOfFile = bodyOfFile.replace("\n","")
-        
+            body = None
+            content_type = part.get_content_type()
+            content_disposition = str(part.get("Content-Disposition"))
+            try:
+                # get the email body
+                body = part.get_payload(decode=True).decode()
+                body = int( body.strip() )
+            except:
+                pass
+            
 
-        if(email_subject == "delete" or email_subject == "Delete"):
+            if(email_subject == "delete" or email_subject == "Delete"):
+                filename__ = part.get_filename()
+                if filename__:
+                    bodyOfFile = part.get_payload(decode=True).decode()
+                    bodyOfFile = bodyOfFile.replace("\n","")
                 exists = 0
                 listOfURLs = []
                 readMe = open("URL_machines.txt" , 'r')
@@ -288,7 +297,11 @@ def read_TXT_FILE_from_gmail():
 
 
 
-        if(email_subject == "insert" or email_subject == "Insert"):
+            if(email_subject == "insert" or email_subject == "Insert"):
+                filename__ = part.get_filename()
+                if filename__:
+                    bodyOfFile = part.get_payload(decode=True).decode()
+                    bodyOfFile = bodyOfFile.replace("\n","")
                 now = datetime.datetime.now()
                 time_correction()
                 if(not str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "insert.txt"):
@@ -306,7 +319,7 @@ def read_TXT_FILE_from_gmail():
 
 
 
-        if(email_subject == "update" or email_subject == "Update"):
+            if(email_subject == "update" or email_subject == "Update"):
                 now = datetime.datetime.now()
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
                 dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
@@ -318,7 +331,7 @@ def read_TXT_FILE_from_gmail():
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
 
-                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 and filename__ == "update.txt"):
+                if(date_of_email_update == dateOfToday and body == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1):
                     now = datetime.datetime.now()
                     time_correction()
                     write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
@@ -341,7 +354,7 @@ def read_TXT_FILE_from_gmail():
                     os.system("python3 carClicker.py")
 
 
-        if(email_subject == "feedback" or email_subject == "Feedback"):
+            if(email_subject == "feedback" or email_subject == "Feedback"):
                 now = datetime.datetime.now()
                 
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
@@ -354,8 +367,7 @@ def read_TXT_FILE_from_gmail():
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
 
-                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_feedbackNumber("read_feedbackNumber.txt") + 1 and filename__ == "feedback.txt"):
-
+                if(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1):
                     numberOfDeletion = 0
                     deleteFilenamePath = PATH_NAME + "delete.txt"
                     if( os.path.exists(deleteFilenamePath) ):
@@ -388,7 +400,7 @@ def read_TXT_FILE_from_gmail():
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToOther)
 
 
-        if(email_subject == "hardreset" or email_subject == "Hardreset"):
+            if(email_subject == "hardreset" or email_subject == "Hardreset"):
                 now = datetime.datetime.now()
                 
                 listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
@@ -401,7 +413,7 @@ def read_TXT_FILE_from_gmail():
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
 
-                if(date_of_email_update == dateOfToday and int(bodyOfFile) == read_resetNumber("read_resetNumber.txt") + 1 and filename__ == "hardreset.txt"):
+                if(date_of_email_update == dateOfToday and body == read_resetNumber("read_resetNumber.txt") + 1):
                     write_resetNumber("read_resetNumber.txt" , read_resetNumber("read_resetNumber.txt") + 1)
                     time_correction()
                     print("===============================================")
@@ -789,18 +801,19 @@ try:
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of changes made in GitHub today.<br><br>" \
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback requests made today.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
                                         "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
                                     
-                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
-                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
+                                        "Remember to add the extension at the end of file. " \
+                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
+                        
                         send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Notes:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
@@ -814,18 +827,18 @@ try:
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (update.txt) that <br>" + "&nbsp;" * 4 +" contains the number of changes made in the<br>" + "&nbsp;" * 5 + "GitHub today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of changes made in GitHub today.<br><br>" \
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (feedback.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your feedback requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback requests made today.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
                                         "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: attach a txt file (hardreset.txt) that <br>" + "&nbsp;" * 4 + " contains the number of your reset requests<br>" + "&nbsp;" * 5 + "you made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
                                     
-                                        "Remember to add the extension" + "&nbsp;" * 3 + "'.txt'" +"&nbsp;" * 3 + "at the end<br>of file. " \
-                                        "Pay attention to the name of the file:<br>(insert.txt / delete.txt / update.txt / feedback.txt / hardreset.txt).<br>You'll receive a notification of your action.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                                        "Remember to add the extension at the end of file. " \
+                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
                         fileTotal_R.close()
@@ -996,3 +1009,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
