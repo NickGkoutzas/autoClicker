@@ -285,14 +285,14 @@ def read_TXT_FILE_from_gmail():
                 now = datetime.datetime.now()
                 time_correction()
                 if(exists == 0 and str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "delete.txt"):    # the url that sent me ,does not exist in my list
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(bodyOfFile) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
                     open("URL_machines.txt").close()
                     pass
 
                 elif(exists == 1 and filename__ == "delete.txt"):
-                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
 
 
@@ -314,8 +314,8 @@ def read_TXT_FILE_from_gmail():
 
                     open("URL_machines.txt").close()
                     open("MachinesEachUpdate.txt").close()
-                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+                    send_email("List updated in 'www.car.gr': A machine inserted " , str(bodyOfFile) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
 
 
 
@@ -338,11 +338,11 @@ def read_TXT_FILE_from_gmail():
                     print("===============================================")
                     print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
                     if( int(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) == 1 ):
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToMe)
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToOther)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
                     else:
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToMe)
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToOther)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
 
                     print("===============================================")
                     time.sleep(7 * 60)  # sleep for 7 minutes
@@ -391,13 +391,13 @@ def read_TXT_FILE_from_gmail():
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToMe)
+                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
                                         
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
                     " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToOther)
+                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
 
 
             if(email_subject == "hardreset" or email_subject == "Hardreset"):
@@ -420,8 +420,8 @@ def read_TXT_FILE_from_gmail():
                     print("Hard reset all files...\nRestart the app.")
                     print("===============================================")
 
-                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToMe)
-                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services.", ToOther)
+                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
 
                     reset_files(False)
 
@@ -603,8 +603,8 @@ def error_and_back_to_internet():
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
                 __internetStatusError__Write("internet_statusError.txt" , 0)
                 time_correction()
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+                send_email("[SOLVED] Internet connection error" , "There was a problem connecting<br>to the network at " + str( open("internet_error_DATE.txt" , 'r').read() ) + "<br><br>Possible problems:<br>1) Ethernet cable disconnected<br>2) Bad Wi-Fi connection<br>3) Power outage<br>" + "<br>Connection restored at " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
                 print("Sent email due to network disconnection... > " + hour__ + ":" + min__ + ":" + sec__)
                 open("internet_error_DATE.txt").close()
                 break
@@ -812,7 +812,7 @@ try:
                                                 "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
                                     
                                         "Remember to add the extension at the end of file. " \
-                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
+                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToMe)
                         
                         send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Notes:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
@@ -838,7 +838,7 @@ try:
                                                 "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
                                     
                                         "Remember to add the extension at the end of file. " \
-                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
                         fileTotal_R.close()
@@ -869,8 +869,8 @@ try:
             if( read_error("run_after_error.txt") == 1 ):
                 now = datetime.datetime.now()
                 time_correction()
-                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+                send_email("The errors just solved in 'www.car.gr'" , "The errors in 'www.car.gr' solved." + "&nbsp;" * 7 + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
                 write_error("run_after_error.txt" , 0)
                 print("Emails sent... Purpose: Unrecognized errors solved.")
                 print("Running normally again, due to 20 errors...  >  " + str(now.day) + "/" + str(now.month) + "/" + str(now.year) + "  ,  " + hour__ + ":" + min__ + ":" + sec__ )
@@ -906,8 +906,8 @@ try:
                     str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
 
                     analytics = "https://www.car.gr/analytics/overview?date-from=1644962400&date-to=1644993347&fbclid=IwAR0PP4jRq9XOQROeGJIRON7gSMOO4RPUDBAEiJXrPPhg44pTBiZNRsS6vz4"
-                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python." , ToMe)
+                    send_email("Statistical results from \"car.gr\"" , "Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python." , ToOther)
                     print("Emails just sent... Purpose: " + successful_updates_of_day + " updates were performed successfully.")
                     fileTotal.close()
                     fileEach.close()
@@ -932,8 +932,8 @@ except OSError:
     print("===============================================\nAn OS error occured. Trying again. Loading...\n===============================================\n")
     now = datetime.datetime.now()
     time_correction()
-    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+    send_email("WARNING !!! \"car.gr\" stopped" , "WARNING !!! 'carClicker' app stopped running due to an OS exception. Trying to restart application...<br>You may need to manually fix the problem if this continues.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
     current_time = datetime.datetime.now().time()   # get current time
     if(not current_time < on_time and not current_time >= off_time):
         read_TXT_FILE_from_gmail()
@@ -1000,8 +1000,8 @@ except: # if anything is wrong
             str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
             now = datetime.datetime.now()
             time_correction()
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToMe)
-            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "Written in Python.<br>Running on Amazon Web Services." , ToOther)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "Written in Python." , ToMe)
+            send_email("20 errors occured in 'www.car.gr'  " + str_date , "20 errors occured while the application was running.Trying to restart application...<br>You may need to manually fix the problem if this continues.Time: " +  + hour__ + ":" + min__ + ":" + sec__  + "<br><br>" + "Written in Python." , ToOther)
             print("Emails just sent... Purpose: Unrecognized error")
             write_error("run_after_error.txt" , 1)
             writeNumOfErrors("let_20_errors_happen.txt" , 0)
