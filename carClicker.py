@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Jan 09 2023 -> update the variable 'last_update' below
+# --------------- Last update: Feb 01 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Jan 09 2023"                                                   # Manual
+last_update = "Feb 01 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -88,10 +88,19 @@ def read_URL_machines_FILE(file__ , which_line):
 
 
 def delete_from_URL_MACHINES_FILE(file__ , URL):
+    global driver
     for i in range( read_NumberOfMachines("URL_machines.txt") ):
         URL_machine = linecache.getline(file__ , i+1).strip("\n")
         if(URL == URL_machine):
             delete_line("URL_machines.txt" , i , "")
+            driver.get(URL_machine)
+            # delete machine from 'www.car.gr'
+            global delete_machine
+            try:
+                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
+            except:
+                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")      
+
             break
 
 
@@ -276,6 +285,18 @@ def read_TXT_FILE_from_gmail():
                     if( str(bodyOfFile) == listOfURLs[s] ):
                         delete_line("MachinesEachUpdate.txt" , s)
                         delete_line("URL_machines.txt" , s)
+                        driver.get( str(bodyOfFile) )
+                        # delete this machine from 'www.car.gr'
+                        global delete_machine
+                        error_deleting_machine_from_car = False
+                        try:
+                            try:
+                                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
+                            except:
+                                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
+                        except:
+                            error_deleting_machine_from_car = True
+                            
                         exists = 1
                         open("URL_machines.txt").close()
                         break
@@ -290,7 +311,7 @@ def read_TXT_FILE_from_gmail():
                     open("URL_machines.txt").close()
                     pass
 
-                elif(exists == 1 and filename__ == "delete.txt"):
+                elif(exists == 1  and not error_deleting_machine_from_car and filename__ == "delete.txt"):
                     send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
                     send_email("List updated in 'www.car.gr': A machine deleted " , str(bodyOfFile) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
@@ -1009,4 +1030,3 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-
