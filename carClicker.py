@@ -531,8 +531,10 @@ def __totalErrorsOfDay__R(file_name):
 
 
 def __totalErrorsOfDay__W(file_name):
-    errors__ = open(file_name , 'w')
+    errors__ = open(file_name , 'r')
     numOfErrors = int( errors__.read() ) + 1
+    errors__.close()
+    errors__ = open(file_name , 'w')
     errors__.write( str(numOfErrors) )
     errors__.flush()
     errors__.close()
@@ -733,6 +735,7 @@ try:
     "         Source: GitHub" + "\n===============================================\n")
     print("Opening 'www.car.gr' page...") 
     link_site = "https://www.car.gr"    # link for car.gr
+    error_and_back_to_internet()
     driver.get(link_site)               # open car.gr site
     time.sleep(1)
     error_and_back_to_internet()
