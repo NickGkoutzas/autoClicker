@@ -1,17 +1,17 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: May 06 2023 -> update the variable 'last_update' below
+# --------------- Last update: Jul 19 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
 from datetime import datetime , time , date
-import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email
+import time , datetime , os , sys , smtplib , linecache , socket , imaplib , email , re
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "May 06 2023"                                                   # Manual
+last_update = "Jul 19 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -257,40 +257,41 @@ def read_TXT_FILE_from_gmail():
                 email_date = msg['Date']
 
         for part in msg.walk():
-            
-            
-
-            if(email_subject == "delete" or email_subject == "Delete"):
-
+            if(email_subject == "delete" or email_subject == "Delete"):                
                 for part in msg.walk():
-                    body = None
-                    content_type = part.get_content_type()
-                    content_disposition = str(part.get("Content-Disposition"))
+                    body = 0
                     try:
                         # get the email body
                         body = part.get_payload(decode=True).decode()
                         body = str( body.strip() )
                     except:
                         pass
-                body = body.replace('<div dir="ltr"><a href="' , '')
-                body = body.replace('</a></div>' , '')
-                pos_of_exclamation_mark = body.index('"')
-                body = body.replace(body[pos_of_exclamation_mark:] , '')
- 
-                exists = 0
+                
+                pattern = r'<a href="(.*?)">.*?</a>'
+                match = re.search(pattern, body)
+                if(match):
+                    body = match.group(1)
+                else:
+                    return
                 listOfURLs = []
                 readMe = open("URL_machines.txt" , 'r')
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
                     readMeValue = readMe.readline().replace("\n" , "")
                     listOfURLs.append( str(readMeValue) )
                 readMe.close()
-                print(body)
+
                 for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
                     if( body == listOfURLs[s] ):
-                        
                         delete_line("MachinesEachUpdate.txt" , s)
                         delete_line("URL_machines.txt" , s)
                         driver.get( body )
+                        now = datetime.datetime.now()
+                        time_correction()
+                        send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
+                        send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
+                        write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
+
+                        open("URL_machines.txt").close()
                         global delete_machine
                         try:
                             try:
@@ -299,33 +300,17 @@ def read_TXT_FILE_from_gmail():
                                 delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
                         except:
                             pass
-                            
-                        exists = 1
-                        open("URL_machines.txt").close()
+                        
+                        
                         break
                 
                 listOfURLs.clear()
-                
-                now = datetime.datetime.now()
-                time_correction()
-                if(exists == 0 and str(body) in open("URL_machines.txt" , 'r').read()):    # the url that sent me ,does not exist in my list
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(body) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
-                    send_email("Problem: Machine can not be deleted in 'www.car.gr'" , str(body) + " does not exist in the list .<br>Time: " +  hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
-                    open("URL_machines.txt").close()
-                    pass
-
-                elif(exists == 1):
-                    send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
-                    write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
-
 
 
             if(email_subject == "insert" or email_subject == "Insert"):
+                
                 for part in msg.walk():
-                    body = None
-                    content_type = part.get_content_type()
-                    content_disposition = str(part.get("Content-Disposition"))
+                    body = 0
                     try:
                         # get the email body
                         body = part.get_payload(decode=True).decode()
@@ -337,16 +322,18 @@ def read_TXT_FILE_from_gmail():
                     
                 now = datetime.datetime.now()
                 time_correction()
-                #print(body in open("URL_machines.txt" , 'r').read())
-                body = body.replace('<div dir="ltr">' , '')
-                body = body.replace('<br></div>' , '')
+                pattern = r'<a href="(.*?)">.*?</a>'
+                match = re.search(pattern, body)
+                if(match):
+                    body = match.group(1)
+                else:
+                    pass
+
                 if(not body in open("URL_machines.txt" , 'r').read() ):
-                    #print(body)
-                #if(not str(bodyOfFile) in open("URL_machines.txt" , 'r').read() and filename__ == "insert.txt"):
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
                     with open("URL_machines.txt", "a") as __file__:
                         #__file__.write(str(bodyOfFile) + "\n")
-                        __file__.write(body)
+                        __file__.write(str(body) + "\n")
                     with open("MachinesEachUpdate.txt", "a") as __file:
                         __file.write(str(0) + "\n")
 
@@ -358,9 +345,7 @@ def read_TXT_FILE_from_gmail():
 
 
             if(email_subject == "update" or email_subject == "Update"):
-                body = None
-                content_type = part.get_content_type()
-                content_disposition = str(part.get("Content-Disposition"))
+                body = 0
                 try:
                     # get the email body
                     body = part.get_payload(decode=True).decode()
@@ -403,9 +388,7 @@ def read_TXT_FILE_from_gmail():
 
 
             if(email_subject == "feedback" or email_subject == "Feedback"):
-                body = None
-                content_type = part.get_content_type()
-                content_disposition = str(part.get("Content-Disposition"))
+                body = 0
                 try:
                     # get the email body
                     body = part.get_payload(decode=True).decode()
@@ -459,9 +442,7 @@ def read_TXT_FILE_from_gmail():
 
 
             if(email_subject == "hardreset" or email_subject == "Hardreset"):
-                body = None
-                content_type = part.get_content_type()
-                content_disposition = str(part.get("Content-Disposition"))
+                body = 0
                 try:
                     # get the email body
                     body = part.get_payload(decode=True).decode()
@@ -550,7 +531,7 @@ def __totalErrorsOfDay__R(file_name):
 
 
 def __totalErrorsOfDay__W(file_name):
-    errors__ = open(file_name , 'r+')
+    errors__ = open(file_name , 'w')
     numOfErrors = int( errors__.read() ) + 1
     errors__.write( str(numOfErrors) )
     errors__.flush()
@@ -861,11 +842,11 @@ try:
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the link-machine you want to add.<br><br> \
+                                                "     and message: Write down the link-machine" + "<br>" + "&nbsp;" * 4 + " you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the link-machine you want to delete.<br><br>" \
+                                                "     and message: Write down the link-machine" + "<br>" + "&nbsp;" * 4 + " you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
@@ -873,11 +854,11 @@ try:
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback requests made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback request.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
                                         "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset request.<br><br>" \
                                     
                                         "Remember to add the extension at the end of file. " \
                                         "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToMe)
@@ -887,11 +868,11 @@ try:
                                             * Insert a new machine in the list?<br>" + "&nbsp;" * 5 +  \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'insert' or 'Insert'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the link-machine you want to add.<br><br> \
+                                                "     and message: Write down the link-machine" + "<br>" + "&nbsp;" * 4 + " you want to add.<br><br> \
                                         * Delete an existing machine from the list?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'delete' or 'Delete'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the link-machine you want to delete.<br><br>" \
+                                                "     and message: Write down the link-machine" + "<br>" + "&nbsp;" * 4 + " you want to delete.<br><br>" \
                                         "* Update the current version from GitHub?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'update' or 'Update'" + "<br>" + "&nbsp;" * 4 + \
@@ -899,11 +880,11 @@ try:
                                         "* Request application to send you feedback?<br>" + "&nbsp;" * 5 + \
                                                 "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'feedback' or 'Feedback'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback requests made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of feedback request.<br><br>" \
                                         "* Hard reset application and all files?<br>" + "&nbsp;" * 5 + \
                                         "Send an email to " + str(FROM_EMAIL) + "<br>" + "&nbsp;" * 4 + \
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
-                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset requests made today.<br><br>" \
+                                                "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset request.<br><br>" \
                                     
                                         "Remember to add the extension at the end of file. " \
                                         "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToOther)
@@ -930,7 +911,7 @@ try:
             if(currentPosUpdate == read_NumberOfMachines("NumberOfMachines.txt")):  # if update of all machines finished
                 currentPosUpdate = 0                    # start again
                 file = open("updateNumber.txt", "w")    # open the file
-                file.write(str(currentPosUpdate))   # write the number in the file
+                file.write(str(currentPosUpdate))       # write the number in the file
                 file.flush() 
                 file.close()
 
@@ -951,7 +932,7 @@ try:
             
 
             elif (readTotalUpdates() < dailyTotalUpdates ):
-                for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection   
+                for i in range( 1 , int( open("delay.txt").read() ) ):   # sleeping... & checking for network disconnection      
                     time.sleep(1)
                     error_and_back_to_internet()
                 open("delay.txt").close()
