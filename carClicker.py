@@ -430,7 +430,7 @@ def read_TXT_FILE_from_gmail():
                 
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
-                print(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1)
+
                 if(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1):
                     numberOfDeletion = 0
                     deleteFilenamePath = PATH_NAME + "delete.txt"
@@ -750,8 +750,7 @@ options.add_argument('--headless')
 error_and_back_to_internet()
 driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide window **)
 
-read_TXT_FILE_from_gmail()
-'''
+
 try:
     error_and_back_to_internet()
     print("          >> APPLICATION STARTED <<\n===============================================\n" + \
@@ -1085,4 +1084,3 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
-'''
