@@ -430,7 +430,7 @@ def read_TXT_FILE_from_gmail():
                 
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
-
+                print(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1)
                 if(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1):
                     numberOfDeletion = 0
                     deleteFilenamePath = PATH_NAME + "delete.txt"
@@ -452,13 +452,13 @@ def read_TXT_FILE_from_gmail():
                     print("Sending email feedback from 'www.car.gr' due to request")
                     print("===============================================")
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines()) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
                                         
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines()) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
@@ -750,7 +750,8 @@ options.add_argument('--headless')
 error_and_back_to_internet()
 driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide window **)
 
-
+read_TXT_FILE_from_gmail()
+'''
 try:
     error_and_back_to_internet()
     print("          >> APPLICATION STARTED <<\n===============================================\n" + \
@@ -1084,3 +1085,4 @@ except: # if anything is wrong
 
     driver.quit()   # quit firefox
     os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+'''
