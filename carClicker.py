@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Jul 19 2023 -> update the variable 'last_update' below
+# --------------- Last update: Aug 22 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Jul 19 2023"                                                   # Manual
+last_update = "Aug 22 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -280,29 +280,41 @@ def read_TXT_FILE_from_gmail():
                     listOfURLs.append( str(readMeValue) )
                 readMe.close()
 
-                for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                    if( body == listOfURLs[s] ):
-                        delete_line("MachinesEachUpdate.txt" , s)
-                        delete_line("URL_machines.txt" , s)
-                        driver.get( body )
-                        now = datetime.datetime.now()
-                        time_correction()
-                        send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
-                        send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
-                        write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
+                now = datetime.datetime.now()
+                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                date_of_email_update = ''
 
-                        open("URL_machines.txt").close()
-                        global delete_machine
-                        try:
+                for _string_ in range(5 , 16):
+                    date_of_email_update += str(email_date[_string_])
+                
+                date_of_email_update = "".join(date_of_email_update.split())
+                dateOfToday = "".join(dateOfToday.split())
+                
+                if(date_of_email_update == dateOfToday):
+                    for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                        if( body == listOfURLs[s] ):
+                            delete_line("MachinesEachUpdate.txt" , s)
+                            delete_line("URL_machines.txt" , s)
+                            driver.get( body )
+                            now = datetime.datetime.now()
+                            time_correction()
+                            send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
+                            send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
+                            write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
+
+                            open("URL_machines.txt").close()
+                            global delete_machine
                             try:
-                                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
+                                try:
+                                    delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
+                                except:
+                                    delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
                             except:
-                                delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
-                        except:
-                            pass
-                        
-                        
-                        break
+                                pass
+                            
+                            
+                            break
                 
                 listOfURLs.clear()
 
@@ -328,8 +340,19 @@ def read_TXT_FILE_from_gmail():
                     body = match.group(1)
                 else:
                     pass
+                
+                now = datetime.datetime.now()
+                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                date_of_email_update = ''
 
-                if(not body in open("URL_machines.txt" , 'r').read() ):
+                for _string_ in range(5 , 16):
+                    date_of_email_update += str(email_date[_string_])
+                
+                date_of_email_update = "".join(date_of_email_update.split())
+                dateOfToday = "".join(dateOfToday.split())
+
+                if(date_of_email_update == dateOfToday and not body in open("URL_machines.txt" , 'r').read() ):
                     write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
                     with open("URL_machines.txt", "a") as __file__:
                         #__file__.write(str(bodyOfFile) + "\n")
@@ -363,7 +386,7 @@ def read_TXT_FILE_from_gmail():
                 
                 date_of_email_update = "".join(date_of_email_update.split())
                 dateOfToday = "".join(dateOfToday.split())
-
+                
                 if(date_of_email_update == dateOfToday and body == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1):
                     now = datetime.datetime.now()
                     time_correction()
@@ -429,13 +452,13 @@ def read_TXT_FILE_from_gmail():
                     print("Sending email feedback from 'www.car.gr' due to request")
                     print("===============================================")
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines()) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
                                         
                     send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines()) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
                     "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
                     "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
                     "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
