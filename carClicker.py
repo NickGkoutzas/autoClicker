@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Aug 22 2023 -> update the variable 'last_update' below
+# --------------- Last update: Aug 27 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Aug 22 2023"                                                   # Manual
+last_update = "Aug 27 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -886,8 +886,7 @@ try:
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset request.<br><br>" \
                                     
-                                        "Remember to add the extension at the end of file. " \
-                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToMe)
+                                        "A notification will be sent.<br><br>" + "Written in Python." , ToMe)
                         
                         send_email("\"car.gr\" app started" , "Let everything to Python!<br><br>Info:<br>Creator: Nick Gkoutzas<br>Date of app creation: Feb 2022<br>GitHub last update: " + last_update + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>This email informs you that the updates for '" + str(str_date) + "' started at " + updatesStartedAt() + \
                                             "<br><br>Notes:<br>If you want to insert, delete a machine,<br>update the current version of application from GitHub, request for a feedback or reset the application and files, then follow the steps below:<br><br> \
@@ -912,8 +911,7 @@ try:
                                                 "     with subject: 'hardreset' or 'Hardreset'" + "<br>" + "&nbsp;" * 4 + \
                                                 "     and message: Write down the current<br>" + "&nbsp;" * 5 + "number of reset request.<br><br>" \
                                     
-                                        "Remember to add the extension at the end of file. " \
-                                        "<br>Pay attention to the name of the file:<br>'insert.txt' or 'delete.txt'.<br>A notification will be sent.<br><br>" + "Written in Python." , ToOther)
+                                        "A notification will be sent.<br><br>" + "Written in Python." , ToOther)
                         print("Emails sent. Purpose: Updates started.")
                         now = datetime.datetime.now()
                         fileTotal_R.close()
