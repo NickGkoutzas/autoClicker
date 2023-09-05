@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Aug 27 2023 -> update the variable 'last_update' below
+# --------------- Last update: Sep 05 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Aug 27 2023"                                                   # Manual
+last_update = "Sep 05 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -764,15 +764,63 @@ try:
     error_and_back_to_internet()
     global cookies
 
-    try:
-        cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3")                              # accept cookies
-    except:
-        try:
-            cookies = driver.find_element(By.CSS_SELECTOR , "button.css-1jlb8eq:nth-child(3)")      # accept cookies
-        except:
-            cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3 > span:nth-child(1)")      # accept cookies
     print("Accepting cookies...")
-    cookies.click()
+    now = datetime.datetime.now()
+    while(1):
+        current_time = datetime.datetime.now().time()   # get current time
+        if(current_time > off_time):
+            all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
+            line = linecache.getline("MachinesEachUpdate.txt" , 0)
+            k = 0
+            with open("totalUpdates.txt") as fileTotal , open("MachinesEachUpdate.txt") as fileEach:
+                for line in fileEach.readlines():
+                    if(k + 1 < 10):
+                        all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 7 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>"  
+                    else:
+                        all_machines_updates_number += "(" + str(k+1) + ")" + "&nbsp;" * 5 + str(line) + "&nbsp;" * 21 + read_URL_machines_FILE("URL_machines.txt" , k+1) + "<br>" 
+                    k += 1
+                    line = linecache.getline("MachinesEachUpdate.txt" , k+1)
+                today = date.today()
+                successful_updates_of_day = str(fileTotal.read())
+                str_date = str(today.day) + "/" + str(today.month) + "/" + str(today.year)
+
+                analytics = "https://www.car.gr/analytics/overview?date-from=1644962400&date-to=1644993347&fbclid=IwAR0PP4jRq9XOQROeGJIRON7gSMOO4RPUDBAEiJXrPPhg44pTBiZNRsS6vz4"
+                send_email("WARNING !!!<br>Statistical results from \"car.gr\"" , "A problem was detected accepting cookies during the day.<br>The application has been trying since: " + str(now.hour) + ":" +str(now.minute) + ":" + str(now.second) + "<br>Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python." , ToMe)
+                send_email("WARNING !!!<br>Statistical results from \"car.gr\"" , "A problem was detected accepting cookies during the day.<br>The application has been trying since: " + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second) + "<br>Date: " + str_date + "<br>Analytics? Check out the following link: <br>" + analytics + "<br><br>Total successful updates: " + successful_updates_of_day + "/" + str(dailyTotalUpdates) + "<br>Total errors during the day: " + str(__totalErrorsOfDay__R("totalErrors.txt")) + "<br>Total number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br><br>" + all_machines_updates_number + "<br><br>" + "Written in Python." , ToOther)
+                print("Emails just sent... Purpose: " + successful_updates_of_day + " updates were performed successfully.")
+                fileTotal.close()
+                fileEach.close()
+
+            # reset all files for the new day    
+            reset_files(True)
+            
+
+            # executes only once per day...
+            print("Sleeping till next day...")
+            time.sleep(10*60)
+            print("Waiting till 06:59:50 pm ...")
+            time.sleep( computeTimeSleep(6 , 59 , 50) )  # sleep till tomorrow morning at 7pm                
+            
+            driver.quit()   # quit firefox
+            os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+        try:
+            cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3")                              # accept cookies
+            cookies.click()
+            break
+        except:
+            try:
+                cookies = driver.find_element(By.CSS_SELECTOR , "button.css-1jlb8eq:nth-child(3)")      # accept cookies
+                cookies.click()
+                break
+            except:
+                try:
+                    cookies = driver.find_element(By.CSS_SELECTOR , ".css-ofc9r3 > span:nth-child(1)")      # accept cookies
+                    cookies.click()
+                    break
+                except:
+                    time.sleep(5)
+
+    
     time.sleep(1)
     error_and_back_to_internet()
     print("Going to login page...")
@@ -825,7 +873,6 @@ try:
     # main loop
     while(True):    
         current_time = datetime.datetime.now().time()   # get current time
-
         if(not current_time < on_time and not current_time >= off_time):
             
             if( readTotalUpdates() < dailyTotalUpdates ):
@@ -839,12 +886,39 @@ try:
 
                 error_and_back_to_internet()
                 global updateMachine
-                try:
-                    updateMachine = driver.find_element(By.CSS_SELECTOR , "div.list-group-item:nth-child(1)")     # find the update button
-                except:
-                    updateMachine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(1) > div:nth-child(1)")     # find the update button
+                
+                for loops in range(5):
+                    try:
+                        updateMachine = driver.find_element(By.CSS_SELECTOR , "div.list-group-item:nth-child(1)")     # find the update button
+                        updateMachine.click()       # press the "update" button
+                        break
+                    except:
+                        try:
+                            updateMachine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(1) > div:nth-child(1)")     # find the update button
+                            updateMachine.click()       # press the "update" button
+                            break
+                        except:
+                            time.sleep(3)
+                            if(loops == 4): # go to the next machine
+                                loops = 0   # and go at the beginning
+                                if(currentPosUpdate == read_NumberOfMachines("NumberOfMachines.txt")):  # if update of all machines finished
+                                    currentPosUpdate = 0                    # start again
+                                    file = open("updateNumber.txt", "w")    # open the file
+                                    file.write(str(currentPosUpdate))       # write the number in the file
+                                    file.flush() 
+                                    file.close()
+                                else:
+                                    currentPosUpdate += 1       # increase current position of machine update
+                                    with open("updateNumber.txt" , 'w') as file:
+                                        file.write(str(currentPosUpdate))   # write the number in the file
+                                        file.flush()    
+                                        file.close()
+                                with open("updateNumber.txt") as file:
+                                    currentPosUpdate = int(file.read()) # read the number from file
+                                    driver.get( read_URL_machines_FILE("URL_machines.txt" , currentPosUpdate + 1) )
+                                open("updateNumber.txt").close()
                 error_and_back_to_internet()
-                updateMachine.click()       # press the "update" button
+                
                 
                 
                 machinesEachUpdate[currentPosUpdate] += 1
