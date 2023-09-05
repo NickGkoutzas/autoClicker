@@ -819,6 +819,7 @@ try:
                     break
                 except:
                     time.sleep(5)
+                    write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
 
     
     time.sleep(1)
