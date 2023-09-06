@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Sep 05 2023 -> update the variable 'last_update' below
+# --------------- Last update: Sep 06 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Sep 05 2023"                                                   # Manual
+last_update = "Sep 06 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -672,6 +672,7 @@ def error_and_back_to_internet():
 
         while( not check_internet_connection() or __internetStatusError__Read("internet_statusError.txt") ):
             time.sleep(1)
+            read_TXT_FILE_from_gmail()
             if( check_internet_connection() ):
                 print("Connection restored. Connected... Done")
                 write_delay("delay.txt" , computeDelay(23 , 55 , 0) )
@@ -767,6 +768,7 @@ try:
     print("Accepting cookies...")
     now = datetime.datetime.now()
     while(1):
+        read_TXT_FILE_from_gmail()
         current_time = datetime.datetime.now().time()   # get current time
         if(current_time > off_time):
             all_machines_updates_number = "&nbsp;" * 2 + "#" + "&nbsp;" * 3 + "Updates" + "&nbsp;" * 5 + "per" + "&nbsp;" * 5 + "&nbsp;" + "URL<br>"
