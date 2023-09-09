@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Sep 06 2023 -> update the variable 'last_update' below
+# --------------- Last update: Sep 09 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Sep 06 2023"                                                   # Manual
+last_update = "Sep 09 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -27,7 +27,9 @@ SMTP_SERVER = "imap.gmail.com"
 SMTP_PORT = 993
 
 
-
+options = Options()
+options.add_argument('--headless')
+driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide window **)
 
 
 def read_NumberOfMachines(file_name):
@@ -237,269 +239,273 @@ def write_FeedbackNumber(file_name , number):
 
 
 def read_TXT_FILE_from_gmail():
-    global FROM_EMAIL , FROM_PWD
-    mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-    mail.login(FROM_EMAIL , FROM_PWD)
-    mail.select('inbox')
+    global FROM_EMAIL , FROM_PWD , driver
+    try:
+        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+        mail.login(FROM_EMAIL , FROM_PWD)
+        mail.select('inbox')
 
-    data = mail.search(None, 'ALL')
-    mail_ids = data[1]
-    id_list = mail_ids[0].split()   
-    latest_email_id = int(id_list[-1])
-    check_last_N_emails = 11
-    for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
-        data = mail.fetch(str(e), '(RFC822)' )
-        for response_part in data:
-            arr = response_part[0]
-            if isinstance(arr, tuple):
-                msg = email.message_from_string(str(arr[1],'utf-8'))
-                email_subject = msg['subject']
-                email_date = msg['Date']
+        data = mail.search(None, 'ALL')
+        mail_ids = data[1]
+        id_list = mail_ids[0].split()   
+        latest_email_id = int(id_list[-1])
+        check_last_N_emails = 11
+        for e in range(latest_email_id , latest_email_id - check_last_N_emails , -1):
+            data = mail.fetch(str(e), '(RFC822)' )
+            for response_part in data:
+                arr = response_part[0]
+                if isinstance(arr, tuple):
+                    msg = email.message_from_string(str(arr[1],'utf-8'))
+                    email_subject = msg['subject']
+                    email_date = msg['Date']
 
-        for part in msg.walk():
-            if(email_subject == "delete" or email_subject == "Delete"):                
-                for part in msg.walk():
-                    body = 0
-                    try:
-                        # get the email body
-                        body = part.get_payload(decode=True).decode()
-                        body = str( body.strip() )
-                    except:
-                        pass
-                
-                pattern = r'<a href="(.*?)">.*?</a>'
-                match = re.search(pattern, body)
-                if(match):
-                    body = match.group(1)
-                else:
-                    return
-                listOfURLs = []
-                readMe = open("URL_machines.txt" , 'r')
-                for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                    readMeValue = readMe.readline().replace("\n" , "")
-                    listOfURLs.append( str(readMeValue) )
-                readMe.close()
-
-                now = datetime.datetime.now()
-                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
-                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
-                date_of_email_update = ''
-
-                for _string_ in range(5 , 16):
-                    date_of_email_update += str(email_date[_string_])
-                
-                date_of_email_update = "".join(date_of_email_update.split())
-                dateOfToday = "".join(dateOfToday.split())
-                
-                if(date_of_email_update == dateOfToday):
-                    for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
-                        if( body == listOfURLs[s] ):
-                            delete_line("MachinesEachUpdate.txt" , s)
-                            delete_line("URL_machines.txt" , s)
-                            driver.get( body )
-                            now = datetime.datetime.now()
-                            time_correction()
-                            send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
-                            send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
-                            write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
-
-                            open("URL_machines.txt").close()
-                            global delete_machine
-                            try:
-                                try:
-                                    delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
-                                except:
-                                    delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
-                            except:
-                                pass
-                            
-                            
-                            break
-                
-                listOfURLs.clear()
-
-
-            if(email_subject == "insert" or email_subject == "Insert"):
-                
-                for part in msg.walk():
-                    body = 0
-                    try:
-                        # get the email body
-                        body = part.get_payload(decode=True).decode()
-                        body = str( body.strip() )
-                    except:
-                        pass
-                
-            
+            for part in msg.walk():
+                if(email_subject == "delete" or email_subject == "Delete"):                
+                    for part in msg.walk():
+                        body = 0
+                        try:
+                            # get the email body
+                            body = part.get_payload(decode=True).decode()
+                            body = str( body.strip() )
+                        except:
+                            pass
                     
-                now = datetime.datetime.now()
-                time_correction()
-                pattern = r'<a href="(.*?)">.*?</a>'
-                match = re.search(pattern, body)
-                if(match):
-                    body = match.group(1)
-                else:
-                    pass
+                    pattern = r'<a href="(.*?)">.*?</a>'
+                    match = re.search(pattern, body)
+                    if(match):
+                        body = match.group(1)
+                    else:
+                        return
+                    listOfURLs = []
+                    readMe = open("URL_machines.txt" , 'r')
+                    for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                        readMeValue = readMe.readline().replace("\n" , "")
+                        listOfURLs.append( str(readMeValue) )
+                    readMe.close()
+
+                    now = datetime.datetime.now()
+                    listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                    dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                    date_of_email_update = ''
+
+                    for _string_ in range(5 , 16):
+                        date_of_email_update += str(email_date[_string_])
+                    
+                    date_of_email_update = "".join(date_of_email_update.split())
+                    dateOfToday = "".join(dateOfToday.split())
+                    
+                    if(date_of_email_update == dateOfToday):
+                        for s in range(read_NumberOfMachines("NumberOfMachines.txt") ):
+                            if( body == listOfURLs[s] ):
+                                delete_line("MachinesEachUpdate.txt" , s)
+                                delete_line("URL_machines.txt" , s)
+                                driver.get( body )
+                                now = datetime.datetime.now()
+                                time_correction()
+                                send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__  + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToMe)
+                                send_email("List updated in 'www.car.gr': A machine deleted " , str(body) + " deleted successfully.<br>List of all machines updated at " +  hour__ + ":" + min__ + ":" + sec__ + "<br>You may not be able to see the machine on the site, because the administrator has removed it." + "<br><br>" + "Written in Python." , ToOther)
+                                write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") - 1 )
+
+                                open("URL_machines.txt").close()
+                                global delete_machine
+                                try:
+                                    try:
+                                        delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6)")          
+                                    except:
+                                        delete_machine = driver.find_element(By.CSS_SELECTOR , "div.c-list-group-item:nth-child(6) > div:nth-child(1)")   
+                                except:
+                                    pass
+                                
+                                
+                                break
+                    
+                    listOfURLs.clear()
+
+
+                if(email_subject == "insert" or email_subject == "Insert"):
+                    
+                    for part in msg.walk():
+                        body = 0
+                        try:
+                            # get the email body
+                            body = part.get_payload(decode=True).decode()
+                            body = str( body.strip() )
+                        except:
+                            pass
+                    
                 
-                now = datetime.datetime.now()
-                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
-                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
-                date_of_email_update = ''
-
-                for _string_ in range(5 , 16):
-                    date_of_email_update += str(email_date[_string_])
-                
-                date_of_email_update = "".join(date_of_email_update.split())
-                dateOfToday = "".join(dateOfToday.split())
-
-                if(date_of_email_update == dateOfToday and not body in open("URL_machines.txt" , 'r').read() ):
-                    write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
-                    with open("URL_machines.txt", "a") as __file__:
-                        #__file__.write(str(bodyOfFile) + "\n")
-                        __file__.write(str(body) + "\n")
-                    with open("MachinesEachUpdate.txt", "a") as __file:
-                        __file.write(str(0) + "\n")
-
-                    open("URL_machines.txt").close()
-                    open("MachinesEachUpdate.txt").close()
-                    send_email("List updated in 'www.car.gr': A machine inserted " , str(body) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
-                    send_email("List updated in 'www.car.gr': A machine inserted " , str(body) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
-
-
-
-            if(email_subject == "update" or email_subject == "Update"):
-                body = 0
-                try:
-                    # get the email body
-                    body = part.get_payload(decode=True).decode()
-                    body = int( body.strip() )
-                except:
-                    pass
-
-                now = datetime.datetime.now()
-                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
-                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
-                date_of_email_update = ''
-
-                for _string_ in range(5 , 16):
-                    date_of_email_update += str(email_date[_string_])
-                
-                date_of_email_update = "".join(date_of_email_update.split())
-                dateOfToday = "".join(dateOfToday.split())
-                
-                if(date_of_email_update == dateOfToday and body == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1):
+                        
                     now = datetime.datetime.now()
                     time_correction()
-                    write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
-                    print("===============================================")
-                    print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
-                    if( int(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) == 1 ):
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+                    pattern = r'<a href="(.*?)">.*?</a>'
+                    match = re.search(pattern, body)
+                    if(match):
+                        body = match.group(1)
                     else:
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
-                        send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
-
-                    print("===============================================")
-                    time.sleep(7 * 60)  # sleep for 7 minutes
-                    print("The new version is currently being downloaded and will be run at a moment...")
-                    os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/carClicker.py' && mv carClicker.py.1 carClicker.py")
-                    driver.quit()   # quit firefox
-                    time.sleep(5)
-                    changeDelayOnceWrite("change_delay_once.txt" , 1)
-                    os.system("python3 carClicker.py")
-
-
-            if(email_subject == "feedback" or email_subject == "Feedback"):
-                body = 0
-                try:
-                    # get the email body
-                    body = part.get_payload(decode=True).decode()
-                    body = int( body.strip() )
-                except:
-                    pass
-
-                now = datetime.datetime.now()
-                
-                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
-                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
-                date_of_email_update = ''
-
-                for _string_ in range(5 , 16):
-                    date_of_email_update += str(email_date[_string_])
-                
-                date_of_email_update = "".join(date_of_email_update.split())
-                dateOfToday = "".join(dateOfToday.split())
-
-                if(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1):
-                    numberOfDeletion = 0
-                    deleteFilenamePath = PATH_NAME + "delete.txt"
-                    if( os.path.exists(deleteFilenamePath) ):
-                        file_del = open(deleteFilenamePath , 'r')
-                        numberOfDeletion = file_del.read()
-                        file_del.close()
-
-                    numberOfInsertion = 0
-                    insertionFilenamePath = PATH_NAME + "insert.txt"
-                    if( os.path.exists(insertionFilenamePath) ):
-                        file_insert = open(insertionFilenamePath , 'r')
-                        numberOfInsertion = file_insert.read()
-                        file_insert.close()
+                        pass
                     
-                    write_FeedbackNumber("read_feedbackNumber.txt" , read_feedbackNumber("read_feedbackNumber.txt") + 1)
-                    time_correction()
-                    print("===============================================")
-                    print("Sending email feedback from 'www.car.gr' due to request")
-                    print("===============================================")
-                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
-                    "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
-                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
-                                        
-                    send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
-                    " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
-                    "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
-                    "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
-                    "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+                    now = datetime.datetime.now()
+                    listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                    dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                    date_of_email_update = ''
+
+                    for _string_ in range(5 , 16):
+                        date_of_email_update += str(email_date[_string_])
+                    
+                    date_of_email_update = "".join(date_of_email_update.split())
+                    dateOfToday = "".join(dateOfToday.split())
+
+                    if(date_of_email_update == dateOfToday and not body in open("URL_machines.txt" , 'r').read() ):
+                        write_EDIT__file_NumberOfMachines("NumberOfMachines.txt" , read_NumberOfMachines("NumberOfMachines.txt") + 1 )
+                        with open("URL_machines.txt", "a") as __file__:
+                            #__file__.write(str(bodyOfFile) + "\n")
+                            __file__.write(str(body) + "\n")
+                        with open("MachinesEachUpdate.txt", "a") as __file:
+                            __file.write(str(0) + "\n")
+
+                        open("URL_machines.txt").close()
+                        open("MachinesEachUpdate.txt").close()
+                        send_email("List updated in 'www.car.gr': A machine inserted " , str(body) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToMe)
+                        send_email("List updated in 'www.car.gr': A machine inserted " , str(body) + " inserted successfully.<br>List of all machines updated at " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python." , ToOther)
 
 
-            if(email_subject == "hardreset" or email_subject == "Hardreset"):
-                body = 0
-                try:
-                    # get the email body
-                    body = part.get_payload(decode=True).decode()
-                    body = int( body.strip() )
-                except:
-                    pass
 
-                now = datetime.datetime.now()
-                
-                listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
-                dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
-                date_of_email_update = ''
+                if(email_subject == "update" or email_subject == "Update"):
+                    body = 0
+                    try:
+                        # get the email body
+                        body = part.get_payload(decode=True).decode()
+                        body = int( body.strip() )
+                    except:
+                        pass
 
-                for _string_ in range(5 , 16):
-                    date_of_email_update += str(email_date[_string_])
-                
-                date_of_email_update = "".join(date_of_email_update.split())
-                dateOfToday = "".join(dateOfToday.split())
+                    now = datetime.datetime.now()
+                    listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                    dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                    date_of_email_update = ''
 
-                if(date_of_email_update == dateOfToday and body == read_resetNumber("read_resetNumber.txt") + 1):
-                    write_resetNumber("read_resetNumber.txt" , read_resetNumber("read_resetNumber.txt") + 1)
-                    time_correction()
-                    print("===============================================")
-                    print("Hard reset all files...\nRestart the app.")
-                    print("===============================================")
+                    for _string_ in range(5 , 16):
+                        date_of_email_update += str(email_date[_string_])
+                    
+                    date_of_email_update = "".join(date_of_email_update.split())
+                    dateOfToday = "".join(dateOfToday.split())
+                    
+                    if(date_of_email_update == dateOfToday and body == read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1):
+                        now = datetime.datetime.now()
+                        time_correction()
+                        write_GitHubUpdatesNumber("GitHubUpdatesNumber.txt" , read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt") + 1 ) # increase 'update' number (GitHub upates) by 1
+                        print("===============================================")
+                        print("Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.\nDO NOT terminate the program !!!\nTime: " + hour__ + ":" + min__ + ":" + sec__ )
+                        if( int(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) == 1 ):
+                            send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                            send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>This is the 1st update version for today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+                        else:
+                            send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                            send_email("Update new version from GitHub" , "Program stopped running, because an update version will be downloaded from GitHub.\nThe update program will start in 7 minutes.<br>A new version of application created " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + " times today.<br>DO NOT terminate the program !!!<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
 
-                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
-                    send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+                        print("===============================================")
+                        time.sleep(7 * 60)  # sleep for 7 minutes
+                        print("The new version is currently being downloaded and will be run at a moment...")
+                        os.system("wget 'https://github.com/NickGkoutzas/autoClicker/raw/main/carClicker.py' && mv carClicker.py.1 carClicker.py")
+                        driver.quit()   # quit firefox
+                        time.sleep(5)
+                        changeDelayOnceWrite("change_delay_once.txt" , 1)
+                        os.system("python3 carClicker.py")
 
-                    reset_files(False)
 
-                    driver.quit()   # quit firefox
-                    os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+                if(email_subject == "feedback" or email_subject == "Feedback"):
+                    body = 0
+                    try:
+                        # get the email body
+                        body = part.get_payload(decode=True).decode()
+                        body = int( body.strip() )
+                    except:
+                        pass
 
+                    now = datetime.datetime.now()
+                    
+                    listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                    dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                    date_of_email_update = ''
+
+                    for _string_ in range(5 , 16):
+                        date_of_email_update += str(email_date[_string_])
+                    
+                    date_of_email_update = "".join(date_of_email_update.split())
+                    dateOfToday = "".join(dateOfToday.split())
+
+                    if(date_of_email_update == dateOfToday and body == read_feedbackNumber("read_feedbackNumber.txt") + 1):
+                        numberOfDeletion = 0
+                        deleteFilenamePath = PATH_NAME + "delete.txt"
+                        if( os.path.exists(deleteFilenamePath) ):
+                            file_del = open(deleteFilenamePath , 'r')
+                            numberOfDeletion = file_del.read()
+                            file_del.close()
+
+                        numberOfInsertion = 0
+                        insertionFilenamePath = PATH_NAME + "insert.txt"
+                        if( os.path.exists(insertionFilenamePath) ):
+                            file_insert = open(insertionFilenamePath , 'r')
+                            numberOfInsertion = file_insert.read()
+                            file_insert.close()
+                        
+                        write_FeedbackNumber("read_feedbackNumber.txt" , read_feedbackNumber("read_feedbackNumber.txt") + 1)
+                        time_correction()
+                        print("===============================================")
+                        print("Sending email feedback from 'www.car.gr' due to request")
+                        print("===============================================")
+                        send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
+                        " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                        "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
+                        "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                        "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                                            
+                        send_email("Feedback from 'www.car.gr'" , "Sending feedback from 'www.car.gr' due to request.<br>This email feedback is the #" + str(read_feedbackNumber("read_feedbackNumber.txt")) + \
+                        " of the day.<br>" + " <br>Number of machines: " + str(read_NumberOfMachines("NumberOfMachines.txt")) + "<br>Current number of machines updates: " + str( readTotalUpdates() ) + "<br>Current number of errors: " + str( __totalErrorsOfDay__R("totalErrors.txt") ) + \
+                        "<br>Insertion number of machines: " + str(numberOfInsertion) + "<br>" + "Deletion number of machines: " + str(numberOfDeletion) + "<br>" + \
+                        "Number of GitHub updates: " + str(read_GitHubUpdatesNumber("GitHubUpdatesNumber.txt")) + "<br>" + "Number of app resets: " + str(read_resetNumber("read_resetNumber.txt")) + "<br>" + "Number of feedbacks: " + str(read_feedbackNumber("read_feedbackNumber.txt")) +\
+                        "<br><br>App is currently running normally.<br>Time of request: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+
+
+                if(email_subject == "hardreset" or email_subject == "Hardreset"):
+                    body = 0
+                    try:
+                        # get the email body
+                        body = part.get_payload(decode=True).decode()
+                        body = int( body.strip() )
+                    except:
+                        pass
+
+                    now = datetime.datetime.now()
+                    
+                    listOfMonths = ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"]
+                    dateOfToday = str(now.day) + " " + listOfMonths[int(now.month) - 1] + " " + str(now.year)
+                    date_of_email_update = ''
+
+                    for _string_ in range(5 , 16):
+                        date_of_email_update += str(email_date[_string_])
+                    
+                    date_of_email_update = "".join(date_of_email_update.split())
+                    dateOfToday = "".join(dateOfToday.split())
+
+                    if(date_of_email_update == dateOfToday and body == read_resetNumber("read_resetNumber.txt") + 1):
+                        write_resetNumber("read_resetNumber.txt" , read_resetNumber("read_resetNumber.txt") + 1)
+                        time_correction()
+                        print("===============================================")
+                        print("Hard reset all files...\nRestart the app.")
+                        print("===============================================")
+
+                        send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToMe)
+                        send_email("Hard reset for \"car.gr\"" , "An app hard reset was performed after a request.<br>The app will automatically start again.<br>A notification will be sent.<br>Time: " + hour__ + ":" + min__ + ":" + sec__ + "<br><br>" + "Written in Python.", ToOther)
+
+                        reset_files(False)
+
+                        driver.quit()   # quit firefox
+                        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
+
+    except:
+        driver.quit()   # quit firefox
+        os.execv(sys.executable, ["python3"] + sys.argv)    # run again from the top
 
 
 
@@ -742,14 +748,6 @@ def reset_files(allFiles):
 
 
 
-
-
-
-
-options = Options()
-options.add_argument('--headless')
-error_and_back_to_internet()
-driver = webdriver.Firefox(options=options)            # call Firefox ( ** hide window **)
 
 
 try:
