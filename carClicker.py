@@ -1,5 +1,5 @@
 # Nick Gkoutzas - Feb 2022 ----------------------------------------------------------
-# --------------- Last update: Sep 09 2023 -> update the variable 'last_update' below
+# --------------- Last update: Oct 30 2023 -> update the variable 'last_update' below
 # -----------------------------------------------------------------------------------
 
 from selenium import webdriver
@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-last_update = "Sep 09 2023"                                                   # Manual
+last_update = "Oct 30 2023"                                                   # Manual
 #=====================================================================================
 lines = tuple(open("passwords.txt" , 'r'))
 FROM_EMAIL = lines[0] 
@@ -828,14 +828,24 @@ try:
     driver.get("https://www.car.gr/login/")
     error_and_back_to_internet()
     print("Entering username and password in login page...")
-    username_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys(site_username)     # give username
-    error_and_back_to_internet()
+    try:
+        username_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(2) > div:nth-child(2) > input:nth-child(1)").send_keys(site_username)     # give username
+    except:
+        username_input = driver.find_element(By.CSS_SELECTOR , "#input-username").send_keys(site_username)     # give username
 
-    password_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys(site_password)     # give password
+    error_and_back_to_internet()
+    try:
+        password_input = driver.find_element(By.CSS_SELECTOR , "#ui-id-2 > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)").send_keys(site_password)     # give password
+    except:
+        password_input = driver.find_element(By.CSS_SELECTOR , "#current-password").send_keys(site_password)     # give password
+
     time.sleep(1)
     error_and_back_to_internet()
-    
-    log_in_button = driver.find_element(By.CSS_SELECTOR , ".col-sm-offset-6 > button:nth-child(1)")   # press login button
+    try:
+        log_in_button = driver.find_element(By.CSS_SELECTOR , ".col-sm-offset-6 > button:nth-child(1)")   # press login button
+    except:
+        log_in_button = driver.find_element(By.CSS_SELECTOR , ".c-button")   # press login button
+
     error_and_back_to_internet()
     
     log_in_button.click()
